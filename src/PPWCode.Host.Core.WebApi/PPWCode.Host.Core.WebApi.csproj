@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- target frameworks -->
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <!-- Root Namespace -->
+    <RootNamespace>PPWCode.Host.Core.WebApi</RootNamespace>
+
+    <!-- nuget package -->
+    <IsPackable>true</IsPackable>
+
+    <!-- Stylecop -->
+    <CodeAnalysisRuleSet>..\StyleCop.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- PPWCode -->
+    <PackageReference Include="PPWCode.API.Core" Version="1.0.0" />
+
+    <!-- Castle Windsor -->
+    <PackageReference Include="Castle.Windsor" Version="5.1.0" />
+<!--    <PackageReference Include="Castle.Windsor.Extensions.DependencyInjection" Version="5.1.0" />-->
+
+    <!-- NHibernate -->
+    <PackageReference Include="NHibernate" Version="5.3.5" />
+
+<!--    &lt;!&ndash; Others &ndash;&gt;-->
+<!--    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />-->
+
+    <!-- SourceLink -->
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+</Project>
