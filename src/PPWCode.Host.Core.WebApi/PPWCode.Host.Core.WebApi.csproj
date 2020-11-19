@@ -24,13 +24,12 @@
 
     <!-- Castle Windsor -->
     <PackageReference Include="Castle.Windsor" Version="5.1.0" />
-<!--    <PackageReference Include="Castle.Windsor.Extensions.DependencyInjection" Version="5.1.0" />-->
 
     <!-- NHibernate -->
     <PackageReference Include="NHibernate" Version="5.3.5" />
 
-<!--    &lt;!&ndash; Others &ndash;&gt;-->
-<!--    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />-->
+    <!-- Others -->
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
 
     <!-- SourceLink -->
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
