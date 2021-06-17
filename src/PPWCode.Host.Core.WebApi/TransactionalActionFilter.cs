@@ -20,7 +20,9 @@ using Castle.Windsor;
 using JetBrains.Annotations;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 using NHibernate;
 
@@ -62,8 +64,7 @@ namespace PPWCode.Host.Core.WebApi
                     try
                     {
                         if ((context.Exception != null)
-                            || ((context.HttpContext.Response != null)
-                                && !IsSuccessStatusCode(context.HttpContext.Response.StatusCode))
+                            || ((context.Result != null) && !IsSuccessStatusCode(context.Result))
                             || context.HttpContext.Items.ContainsKey(PpwRequestSimulation))
                         {
                             try
@@ -173,8 +174,20 @@ namespace PPWCode.Host.Core.WebApi
             return Task.CompletedTask;
         }
 
-        private static bool IsSuccessStatusCode(int statusCode)
-            => (statusCode >= (int)HttpStatusCode.OK) && (statusCode <= 299);
+        private bool IsSuccessStatusCode(IActionResult actionResult)
+        {
+            IStatusCodeActionResult statusCodeActionResult = actionResult as IStatusCodeActionResult;
+            if (statusCodeActionResult == null)
+            {
+                Logger.Error(
+                    $"Cannot determine HTTP status code, {nameof(actionResult)} is {actionResult?.GetType()}: "
+                    + "Assume non-success status code.");
+                return false;
+            }
+
+            int statusCode = statusCodeActionResult.StatusCode.GetValueOrDefault((int)HttpStatusCode.OK);
+            return (statusCode >= (int)HttpStatusCode.OK) && (statusCode <= 299);
+        }
 
         protected virtual Task OnCommitAsync(HttpContext context, CancellationToken cancellationToken)
             => Task.CompletedTask;
