@@ -47,6 +47,7 @@
     <PackageReleaseNotes>
       <![CDATA[
 1.0.0 Initial release
+1.0.1 Bugfix in check for http status code of response.
       ]]>
     </PackageReleaseNotes>
 
