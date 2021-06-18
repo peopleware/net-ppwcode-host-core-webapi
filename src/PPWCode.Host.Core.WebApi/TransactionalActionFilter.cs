@@ -12,6 +12,7 @@
 using System;
 using System.Data;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,6 +22,7 @@ using JetBrains.Annotations;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 
@@ -64,7 +66,7 @@ namespace PPWCode.Host.Core.WebApi
                     try
                     {
                         if ((context.Exception != null)
-                            || ((context.Result != null) && !IsSuccessStatusCode(context.Result))
+                            || !IsSuccessStatusCode(context)
                             || context.HttpContext.Items.ContainsKey(PpwRequestSimulation))
                         {
                             try
@@ -174,19 +176,55 @@ namespace PPWCode.Host.Core.WebApi
             return Task.CompletedTask;
         }
 
-        private bool IsSuccessStatusCode(IActionResult actionResult)
+        protected virtual string ActionContextDisplayName(FilterContext context)
         {
-            IStatusCodeActionResult statusCodeActionResult = actionResult as IStatusCodeActionResult;
-            if (statusCodeActionResult == null)
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Controller context: ");
+
+            ActionDescriptor actionDescriptor = context.ActionDescriptor;
+            sb.Append(actionDescriptor == null ? "ActionDescriptor is null." : actionDescriptor.DisplayName);
+
+            return sb.ToString();
+        }
+
+        protected virtual bool IsHttpStatusCodeNullSuccessful(ActionExecutedContext context)
+            => false;
+
+        protected virtual bool IsSuccessStatusCode(ActionExecutedContext context)
+        {
+            IActionResult actionResult = context.Result;
+            if (actionResult == null)
             {
                 Logger.Error(
-                    $"Cannot determine HTTP status code, {nameof(actionResult)} is {actionResult?.GetType()}: "
+                    $"{ActionContextDisplayName(context)}: Cannot determine HTTP status code: there is no result. "
                     + "Assume non-success status code.");
                 return false;
             }
 
-            int statusCode = statusCodeActionResult.StatusCode.GetValueOrDefault((int)HttpStatusCode.OK);
-            return (statusCode >= (int)HttpStatusCode.OK) && (statusCode <= 299);
+            IStatusCodeActionResult statusCodeActionResult = actionResult as IStatusCodeActionResult;
+            if (statusCodeActionResult == null)
+            {
+                Logger.Error(
+                    $"{ActionContextDisplayName(context)}: Cannot determine HTTP status code, {nameof(actionResult)} is {actionResult.GetType()}: "
+                    + "Assume non-success status code.");
+                return false;
+            }
+
+            int? statusCode = statusCodeActionResult.StatusCode;
+            if (statusCode == null)
+            {
+                if (!IsHttpStatusCodeNullSuccessful(context))
+                {
+                    Logger.Error(
+                        $"{ActionContextDisplayName(context)}: Can determine HTTP status code, but it is null. "
+                        + "Assume non-success status code.");
+                    return false;
+                }
+
+                statusCode = (int)HttpStatusCode.OK;
+            }
+
+            return (statusCode.Value >= (int)HttpStatusCode.OK) && (statusCode.Value <= 299);
         }
 
         protected virtual Task OnCommitAsync(HttpContext context, CancellationToken cancellationToken)
