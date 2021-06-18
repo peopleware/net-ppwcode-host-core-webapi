@@ -59,7 +59,7 @@ namespace PPWCode.Host.Core.WebApi
                 {
                     if (!session.IsOpen)
                     {
-                        throw new ProgrammingError("Current session is not opened.");
+                        throw new ProgrammingError($"{ActionContextDisplayName(context)} Current session is not opened.");
                     }
 
                     ITransaction nhTransaction = (ITransaction)transaction;
@@ -76,19 +76,19 @@ namespace PPWCode.Host.Core.WebApi
                                     await OnRollbackAsync(context.HttpContext);
                                     if (context.HttpContext.Items.ContainsKey(PpwRequestSimulation))
                                     {
-                                        Logger.Info("Simulation was requested, a flush is done.");
+                                        Logger.Info(() => $"{ActionContextDisplayName(context)} Simulation was requested, a flush is done.");
                                         await session.FlushAsync(cancellationToken);
                                     }
                                 }
                                 finally
                                 {
-                                    Logger.Info("Rollback our request transaction.");
+                                    Logger.Info(() => $"{ActionContextDisplayName(context)} Rollback our request transaction.");
                                     await nhTransaction.RollbackAsync();
                                 }
                             }
                             catch (Exception e)
                             {
-                                Logger.Error("While rollback our request transaction, something went wrong.", e);
+                                Logger.Error($"{ActionContextDisplayName(context)} While rollback our request transaction, something went wrong.", e);
                             }
                         }
                         else
@@ -97,7 +97,7 @@ namespace PPWCode.Host.Core.WebApi
                             {
                                 await OnCommitAsync(context.HttpContext, cancellationToken);
 
-                                Logger.Info("Flush and commit our request transaction.");
+                                Logger.Info(() => $"{ActionContextDisplayName(context)} Flush and commit our request transaction.");
                                 await session.FlushAsync(cancellationToken);
                                 await nhTransaction.CommitAsync(cancellationToken);
 
@@ -110,7 +110,7 @@ namespace PPWCode.Host.Core.WebApi
                             }
                             catch (Exception e)
                             {
-                                Logger.Error("While flush and committing our request transaction, something went wrong.", e);
+                                Logger.Error($"{ActionContextDisplayName(context)} While flush and committing our request transaction, something went wrong.", e);
                                 try
                                 {
                                     try
@@ -124,7 +124,7 @@ namespace PPWCode.Host.Core.WebApi
                                 }
                                 catch (Exception e2)
                                 {
-                                    Logger.Error("While rollback our request transaction, something went wrong.", e2);
+                                    Logger.Error($"{ActionContextDisplayName(context)} While rollback our request transaction, something went wrong.", e2);
                                 }
 
                                 throw;
@@ -149,7 +149,7 @@ namespace PPWCode.Host.Core.WebApi
         {
             if (context.HttpContext.Items.ContainsKey(PpwRequestTransaction))
             {
-                throw new ProgrammingError("Something went wrong, we have already started a transaction on the current session.");
+                throw new ProgrammingError($"{ActionContextDisplayName(context)} Something went wrong, we have already started a transaction on the current session.");
             }
 
             ISession session = Kernel.Resolve<ISession>();
@@ -157,10 +157,10 @@ namespace PPWCode.Host.Core.WebApi
             {
                 if (!session.IsOpen)
                 {
-                    throw new ProgrammingError("Current session is not opened.");
+                    throw new ProgrammingError($"{ActionContextDisplayName(context)} Current session is not opened.");
                 }
 
-                Logger.Info("Start our request transaction.");
+                Logger.Info(() => $"{ActionContextDisplayName(context)} Start our request transaction.");
                 context.HttpContext.Items[PpwRequestTransaction] = session.BeginTransaction(IsolationLevel.Unspecified);
             }
             finally
