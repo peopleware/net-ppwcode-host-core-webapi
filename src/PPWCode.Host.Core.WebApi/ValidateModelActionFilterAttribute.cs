@@ -9,6 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,22 +26,41 @@ using PPWCode.API.Core;
 
 namespace PPWCode.Host.Core.WebApi
 {
-    /// <inheritdoc />
+    /// <summary>
+    ///     This filter is used to validate the incoming data.  If the incoming
+    ///     data is not valid, the status code is set to BadRequest (400) and
+    ///     a body is created with the error messages.
+    /// </summary>
     public class ValidateModelActionFilter
-        : AsyncActionOrderedFilter
+        : Filter,
+          IAsyncActionFilter
     {
         /// <inheritdoc />
-        public ValidateModelActionFilter([NotNull] IWindsorContainer container, int order)
-            : base(container, order)
+        public ValidateModelActionFilter([NotNull] IWindsorContainer container)
+            : base(container)
         {
         }
 
         /// <inheritdoc />
-        protected override Task OnActionExecutedAsync(ActionExecutedContext context, CancellationToken cancellationToken)
-            => Task.CompletedTask;
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
-        /// <inheritdoc />
-        protected override Task OnActionExecutingAsync(ActionExecutingContext context, CancellationToken cancellationToken)
+            if (next == null)
+            {
+                throw new ArgumentNullException(nameof(next));
+            }
+
+            CancellationToken cancellationToken = context.HttpContext.RequestAborted;
+            await ValidateAsync(context, cancellationToken);
+
+            await next();
+        }
+
+        protected Task ValidateAsync(ActionExecutingContext context, CancellationToken cancellationToken)
         {
             if (context.ModelState.IsValid == false)
             {

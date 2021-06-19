@@ -21,10 +21,8 @@ using Castle.Windsor;
 using JetBrains.Annotations;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 using NHibernate;
 
@@ -34,27 +32,117 @@ using ISession = NHibernate.ISession;
 
 namespace PPWCode.Host.Core.WebApi
 {
-    /// <inheritdoc />
-    public class TransactionalActionFilter
-        : AsyncActionOrderedFilter
+    /// <summary>
+    ///     This filter is used to manage the transactions. The filter creates a transaction per WebAPI request.
+    ///     The transaction is committed or rolled back based on the status code of the response.
+    ///     A successful response (status code is between 200 and 299) will result in a commit.  If the response
+    ///     is not successful, this will result in a rollback.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This filter is an <see cref="IAsyncActionFilter" />: it starts a transaction right before an
+    ///         action is executed.
+    ///     </para>
+    ///     <para>
+    ///         This filter is an <see cref="IAsyncAlwaysRunResultFilter" />: it commits or rolls back a transaction
+    ///         right after the result is set.
+    ///     </para>
+    ///     <para>
+    ///         Because it functions both as an action and a result filter, the filter has to be registered twice:
+    ///         once in the form of a <see cref="ActionFilterProxy{TActionFilter}" /> and once in the form of a
+    ///         <see cref="ResultFilterProxy{TResultFilter}" />.
+    ///     </para>
+    /// </remarks>
+    public class TransactionFilter
+        : Filter,
+          IAsyncActionFilter,
+          IAsyncAlwaysRunResultFilter
     {
         public const string RequestSimulation = "X-REQUEST-SIMULATION";
         public const string PpwRequestTransaction = "PPW_nhibernate_transaction";
         public const string PpwRequestSimulation = "PPW_request_simulation";
 
         /// <inheritdoc />
-        public TransactionalActionFilter([NotNull] IWindsorContainer container, int order)
-            : base(container, order)
+        public TransactionFilter([NotNull] IWindsorContainer container)
+            : base(container)
         {
         }
 
         /// <inheritdoc />
-        protected override async Task OnActionExecutedAsync(ActionExecutedContext context, CancellationToken cancellationToken)
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            Logger.Info("Check if there is a request transaction.");
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (next == null)
+            {
+                throw new ArgumentNullException(nameof(next));
+            }
+
+            CancellationToken cancellationToken = context.HttpContext.RequestAborted;
+            await InitiateTransaction(context, cancellationToken);
+
+            await next();
+        }
+
+        /// <inheritdoc />
+        public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
+        {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (next == null)
+            {
+                throw new ArgumentNullException(nameof(next));
+            }
+
+            await next();
+
+            CancellationToken cancellationToken = context.HttpContext.RequestAborted;
+            await CloseTransaction(context, cancellationToken);
+        }
+
+        protected Task InitiateTransaction([NotNull] ActionExecutingContext context, CancellationToken cancellationToken)
+        {
+            if (context.HttpContext.Items.ContainsKey(PpwRequestTransaction))
+            {
+                throw new ProgrammingError($"{ActionContextDisplayName(context)} Something went wrong, we have already started a transaction on the current session.");
+            }
+
+            ISession session = Container.Resolve<ISession>();
+            try
+            {
+                if (!session.IsOpen)
+                {
+                    throw new ProgrammingError($"{ActionContextDisplayName(context)} Current session is not opened.");
+                }
+
+                Logger.Info(() => $"{ActionContextDisplayName(context)} Start our request transaction.");
+                context.HttpContext.Items[PpwRequestTransaction] = session.BeginTransaction(IsolationLevel.Unspecified);
+            }
+            finally
+            {
+                Container.Release(session);
+            }
+
+            if (context.HttpContext.Request.Headers.ContainsKey(RequestSimulation))
+            {
+                context.HttpContext.Items[PpwRequestSimulation] = "REQUEST-SIMULATION HEADER";
+            }
+
+            return Task.CompletedTask;
+        }
+
+        protected async Task CloseTransaction([NotNull] ResultExecutingContext context, CancellationToken cancellationToken)
+        {
+            Logger.Info(() => $"{ActionContextDisplayName(context)} Check if there is a request transaction.");
             if (context.HttpContext.Items.TryGetValue(PpwRequestTransaction, out object transaction))
             {
-                ISession session = Kernel.Resolve<ISession>();
+                ISession session = Container.Resolve<ISession>();
                 try
                 {
                     if (!session.IsOpen)
@@ -65,9 +153,7 @@ namespace PPWCode.Host.Core.WebApi
                     ITransaction nhTransaction = (ITransaction)transaction;
                     try
                     {
-                        if ((context.Exception != null)
-                            || !IsSuccessStatusCode(context)
-                            || context.HttpContext.Items.ContainsKey(PpwRequestSimulation))
+                        if (!IsSuccessStatusCode(context) || context.HttpContext.Items.ContainsKey(PpwRequestSimulation))
                         {
                             try
                             {
@@ -133,7 +219,7 @@ namespace PPWCode.Host.Core.WebApi
                     }
                     finally
                     {
-                        Kernel.ReleaseComponent(session);
+                        Container.Release(session);
                     }
                 }
                 finally
@@ -142,38 +228,6 @@ namespace PPWCode.Host.Core.WebApi
                     context.HttpContext.Items.Remove(PpwRequestSimulation);
                 }
             }
-        }
-
-        /// <inheritdoc />
-        protected override Task OnActionExecutingAsync(ActionExecutingContext context, CancellationToken cancellationToken)
-        {
-            if (context.HttpContext.Items.ContainsKey(PpwRequestTransaction))
-            {
-                throw new ProgrammingError($"{ActionContextDisplayName(context)} Something went wrong, we have already started a transaction on the current session.");
-            }
-
-            ISession session = Kernel.Resolve<ISession>();
-            try
-            {
-                if (!session.IsOpen)
-                {
-                    throw new ProgrammingError($"{ActionContextDisplayName(context)} Current session is not opened.");
-                }
-
-                Logger.Info(() => $"{ActionContextDisplayName(context)} Start our request transaction.");
-                context.HttpContext.Items[PpwRequestTransaction] = session.BeginTransaction(IsolationLevel.Unspecified);
-            }
-            finally
-            {
-                Kernel.ReleaseComponent(session);
-            }
-
-            if (context.HttpContext.Request.Headers.ContainsKey(RequestSimulation))
-            {
-                context.HttpContext.Items[PpwRequestSimulation] = "REQUEST-SIMULATION HEADER";
-            }
-
-            return Task.CompletedTask;
         }
 
         protected virtual string ActionContextDisplayName(FilterContext context)
@@ -187,44 +241,10 @@ namespace PPWCode.Host.Core.WebApi
             return sb.ToString();
         }
 
-        protected virtual bool IsHttpStatusCodeNullSuccessful(ActionExecutedContext context)
-            => false;
-
-        protected virtual bool IsSuccessStatusCode(ActionExecutedContext context)
+        protected virtual bool IsSuccessStatusCode(ResultExecutingContext context)
         {
-            IActionResult actionResult = context.Result;
-            if (actionResult == null)
-            {
-                Logger.Error(
-                    $"{ActionContextDisplayName(context)}: Cannot determine HTTP status code: there is no result. "
-                    + "Assume non-success status code.");
-                return false;
-            }
-
-            IStatusCodeActionResult statusCodeActionResult = actionResult as IStatusCodeActionResult;
-            if (statusCodeActionResult == null)
-            {
-                Logger.Error(
-                    $"{ActionContextDisplayName(context)}: Cannot determine HTTP status code, {nameof(actionResult)} is {actionResult.GetType()}: "
-                    + "Assume non-success status code.");
-                return false;
-            }
-
-            int? statusCode = statusCodeActionResult.StatusCode;
-            if (statusCode == null)
-            {
-                if (!IsHttpStatusCodeNullSuccessful(context))
-                {
-                    Logger.Error(
-                        $"{ActionContextDisplayName(context)}: Can determine HTTP status code, but it is null. "
-                        + "Assume non-success status code.");
-                    return false;
-                }
-
-                statusCode = (int)HttpStatusCode.OK;
-            }
-
-            return (statusCode.Value >= (int)HttpStatusCode.OK) && (statusCode.Value <= 299);
+            int statusCode = context.HttpContext.Response.StatusCode;
+            return (statusCode >= (int)HttpStatusCode.OK) && (statusCode <= 299);
         }
 
         protected virtual Task OnCommitAsync(HttpContext context, CancellationToken cancellationToken)
