@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 namespace PPWCode.Host.Core.WebApi
 {
     public abstract class FilterProxy<TFilter> : IOrderedFilter
-    where TFilter : class, IOrderedFilter
+    where TFilter : class
     {
         // ReSharper disable once StaticMemberInGenericType
         private static readonly object _locker = new object();

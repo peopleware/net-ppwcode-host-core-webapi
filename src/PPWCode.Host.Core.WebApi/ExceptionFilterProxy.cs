@@ -24,7 +24,7 @@ namespace PPWCode.Host.Core.WebApi
     public sealed class ExceptionFilterProxy<TExceptionFilter>
         : FilterProxy<TExceptionFilter>,
           IAsyncExceptionFilter
-        where TExceptionFilter : class, IAsyncExceptionFilter, IOrderedFilter
+        where TExceptionFilter : class, IAsyncExceptionFilter
     {
         /// <inheritdoc />
         public ExceptionFilterProxy([NotNull] IWindsorContainer container, int order)

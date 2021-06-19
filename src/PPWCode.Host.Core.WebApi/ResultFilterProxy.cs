@@ -22,7 +22,7 @@ namespace PPWCode.Host.Core.WebApi
     public sealed class ResultFilterProxy<TResultFilter>
         : FilterProxy<TResultFilter>,
           IAsyncResultFilter
-        where TResultFilter : class, IAsyncResultFilter, IOrderedFilter
+        where TResultFilter : class, IAsyncResultFilter
     {
         /// <inheritdoc />
         public ResultFilterProxy([NotNull] IWindsorContainer container, int order)

@@ -24,7 +24,7 @@ namespace PPWCode.Host.Core.WebApi
     public sealed class ActionFilterProxy<TActionFilter>
         : FilterProxy<TActionFilter>,
           IAsyncActionFilter
-        where TActionFilter : class, IAsyncActionFilter, IOrderedFilter
+        where TActionFilter : class, IAsyncActionFilter
     {
         /// <inheritdoc />
         public ActionFilterProxy([NotNull] IWindsorContainer container, int order)

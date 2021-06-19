@@ -22,7 +22,7 @@ namespace PPWCode.Host.Core.WebApi
     public sealed class AlwaysRunResultFilterProxy<TAlwaysRunResultFilter>
     : FilterProxy<TAlwaysRunResultFilter>,
       IAsyncAlwaysRunResultFilter
-    where TAlwaysRunResultFilter : class, IAsyncAlwaysRunResultFilter, IOrderedFilter
+    where TAlwaysRunResultFilter : class, IAsyncAlwaysRunResultFilter
     {
         /// <inheritdoc />
         public AlwaysRunResultFilterProxy([NotNull] IWindsorContainer container, int order)
