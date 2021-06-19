@@ -11,9 +11,6 @@
 
 using System.Threading.Tasks;
 
-using Castle.Core;
-using Castle.MicroKernel;
-using Castle.MicroKernel.Context;
 using Castle.Windsor;
 
 using JetBrains.Annotations;
@@ -25,74 +22,18 @@ namespace PPWCode.Host.Core.WebApi
     /// <inheritdoc cref="IAsyncExceptionFilter" />
     /// <inheritdoc cref="IOrderedFilter" />
     public sealed class ExceptionFilterProxy<TExceptionFilter>
-        : IAsyncExceptionFilter,
-          IOrderedFilter
+        : FilterProxy<TExceptionFilter>,
+          IAsyncExceptionFilter
         where TExceptionFilter : class, IAsyncExceptionFilter, IOrderedFilter
     {
-        // ReSharper disable once StaticMemberInGenericType
-        private static readonly object _locker = new object();
-        private volatile TExceptionFilter _exceptionFilterInstance;
-        private bool? _canCache;
-
+        /// <inheritdoc />
         public ExceptionFilterProxy([NotNull] IWindsorContainer container, int order)
+            : base(container, order)
         {
-            Container = container;
-            Order = order;
         }
-
-        [NotNull]
-        public IWindsorContainer Container { get; }
-
-        public int Order { get; }
-
-        [NotNull]
-        private Arguments Arguments
-            => new Arguments().AddNamed("order", Order);
 
         /// <inheritdoc />
         public Task OnExceptionAsync(ExceptionContext context)
-            => CreateExceptionFilterInstance(Arguments).OnExceptionAsync(context);
-
-        [NotNull]
-        private TExceptionFilter CreateExceptionFilterInstance(Arguments arguments)
-        {
-            if (_canCache == false)
-            {
-                return ResolveActionFilter(arguments);
-            }
-
-            if (_exceptionFilterInstance == null)
-            {
-                lock (_locker)
-                {
-                    if (_exceptionFilterInstance == null)
-                    {
-                        IHandler handler = Container.Kernel.GetHandler(typeof(TExceptionFilter));
-                        if (handler.ComponentModel.LifestyleType != LifestyleType.Singleton)
-                        {
-                            _canCache = false;
-                            return ResolveActionFilter(arguments);
-                        }
-
-                        CreationContext creationContext =
-                            new CreationContext(
-                                handler,
-                                Container.Kernel.ReleasePolicy,
-                                typeof(TExceptionFilter),
-                                Arguments,
-                                null,
-                                null);
-                        _exceptionFilterInstance = (TExceptionFilter)handler.Resolve(creationContext);
-                        _canCache = true;
-                    }
-                }
-            }
-
-            return _exceptionFilterInstance;
-        }
-
-        [NotNull]
-        private TExceptionFilter ResolveActionFilter(Arguments arguments)
-            => Container.Kernel.Resolve<TExceptionFilter>(arguments);
+            => CreateFilterInstance(Arguments).OnExceptionAsync(context);
     }
 }
