@@ -22,24 +22,26 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace PPWCode.Host.Core.WebApi
 {
-    /// <inheritdoc />
+    /// <inheritdoc cref="IAsyncExceptionFilter" />
+    /// <inheritdoc cref="IOrderedFilter" />
     public sealed class ExceptionFilterProxy<TExceptionFilter>
-        : IAsyncExceptionFilter
+        : IAsyncExceptionFilter,
+          IOrderedFilter
         where TExceptionFilter : class, IAsyncExceptionFilter, IOrderedFilter
     {
         // ReSharper disable once StaticMemberInGenericType
         private static readonly object _locker = new object();
-        private bool? _canCache;
         private volatile TExceptionFilter _exceptionFilterInstance;
+        private bool? _canCache;
 
         public ExceptionFilterProxy([NotNull] IWindsorContainer container, int order)
         {
-            Kernel = container.Kernel;
+            Container = container;
             Order = order;
         }
 
         [NotNull]
-        public IKernel Kernel { get; }
+        public IWindsorContainer Container { get; }
 
         public int Order { get; }
 
@@ -65,14 +67,21 @@ namespace PPWCode.Host.Core.WebApi
                 {
                     if (_exceptionFilterInstance == null)
                     {
-                        IHandler handler = Kernel.GetHandler(typeof(TExceptionFilter));
+                        IHandler handler = Container.Kernel.GetHandler(typeof(TExceptionFilter));
                         if (handler.ComponentModel.LifestyleType != LifestyleType.Singleton)
                         {
                             _canCache = false;
                             return ResolveActionFilter(arguments);
                         }
 
-                        CreationContext creationContext = new CreationContext(handler, Kernel.ReleasePolicy, typeof(TExceptionFilter), Arguments, null, null);
+                        CreationContext creationContext =
+                            new CreationContext(
+                                handler,
+                                Container.Kernel.ReleasePolicy,
+                                typeof(TExceptionFilter),
+                                Arguments,
+                                null,
+                                null);
                         _exceptionFilterInstance = (TExceptionFilter)handler.Resolve(creationContext);
                         _canCache = true;
                     }
@@ -84,6 +93,6 @@ namespace PPWCode.Host.Core.WebApi
 
         [NotNull]
         private TExceptionFilter ResolveActionFilter(Arguments arguments)
-            => Kernel.Resolve<TExceptionFilter>(arguments);
+            => Container.Kernel.Resolve<TExceptionFilter>(arguments);
     }
 }

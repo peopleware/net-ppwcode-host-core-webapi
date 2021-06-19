@@ -41,17 +41,17 @@ namespace PPWCode.Host.Core.WebApi
         }
 
         [NotNull]
-        private Arguments Arguments
-            => new Arguments().AddNamed("order", Order);
+        public IWindsorContainer Container { get; }
+
+        public int Order { get; }
 
         [NotNull]
-        public IWindsorContainer Container { get; }
+        private Arguments Arguments
+            => new Arguments().AddNamed("order", Order);
 
         /// <inheritdoc />
         public Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             => CreateActionFilterInstance(Arguments).OnActionExecutionAsync(context, next);
-
-        public int Order { get; }
 
         [NotNull]
         private TActionFilter CreateActionFilterInstance(Arguments arguments)
