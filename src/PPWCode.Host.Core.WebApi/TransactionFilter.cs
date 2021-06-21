@@ -39,19 +39,7 @@ namespace PPWCode.Host.Core.WebApi
     ///     is not successful, this will result in a rollback.
     /// </summary>
     /// <remarks>
-    ///     <para>
-    ///         This filter is an <see cref="IAsyncActionFilter" />: it starts a transaction right before an
-    ///         action is executed.
-    ///     </para>
-    ///     <para>
-    ///         This filter is an <see cref="IAsyncAlwaysRunResultFilter" />: it commits or rolls back a transaction
-    ///         right after the result is set.
-    ///     </para>
-    ///     <para>
-    ///         Because it functions both as an action and a result filter, the filter has to be registered twice:
-    ///         once in the form of a <see cref="ActionFilterProxy{TActionFilter}" /> and once in the form of a
-    ///         <see cref="ResultFilterProxy{TResultFilter}" />.
-    ///     </para>
+    ///     This filter should be registered in the ASP.NET Core pipeline using <see cref="TransactionFilterProxy" />.
     /// </remarks>
     public class TransactionFilter
         : Filter,
