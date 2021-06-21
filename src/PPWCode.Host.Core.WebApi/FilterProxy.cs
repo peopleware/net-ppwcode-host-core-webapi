@@ -28,7 +28,7 @@ namespace PPWCode.Host.Core.WebApi
         private volatile TFilter _filterInstance;
         private bool? _canCache;
 
-        public FilterProxy([NotNull] IWindsorContainer container, int order)
+        protected FilterProxy([NotNull] IWindsorContainer container, int order)
         {
             Container = container;
             Order = order;
