@@ -9,31 +9,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Threading.Tasks;
-
+using Castle.Core.Logging;
 using Castle.Windsor;
 
 using JetBrains.Annotations;
 
-using Microsoft.AspNetCore.Mvc.Filters;
-
 namespace PPWCode.Host.Core.WebApi
 {
-    /// <inheritdoc cref="IAsyncExceptionFilter" />
-    /// <inheritdoc cref="IOrderedFilter" />
-    public sealed class ExceptionFilterProxy<TExceptionFilter>
-        : FilterProxy<TExceptionFilter>,
-          IAsyncExceptionFilter
-        where TExceptionFilter : class, IAsyncExceptionFilter
+    public abstract class Filter
     {
-        /// <inheritdoc />
-        public ExceptionFilterProxy([NotNull] IWindsorContainer container, int order)
-            : base(container, order)
+        private ILogger _logger = NullLogger.Instance;
+
+        protected Filter([NotNull] IWindsorContainer container)
         {
+            Container = container;
         }
 
-        /// <inheritdoc />
-        public Task OnExceptionAsync(ExceptionContext context)
-            => CreateFilterInstance(Arguments).OnExceptionAsync(context);
+        [NotNull]
+        public IWindsorContainer Container { get; }
+
+        [UsedImplicitly]
+        public ILogger Logger
+        {
+            get => _logger;
+            set
+            {
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                if (value != null)
+                {
+                    _logger = value;
+                }
+            }
+        }
     }
 }

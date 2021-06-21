@@ -1,4 +1,4 @@
-// Copyright 2020 by PeopleWare n.v..
+// Copyright 2021 by PeopleWare n.v..
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -19,15 +19,19 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace PPWCode.Host.Core.WebApi
 {
-    /// <inheritdoc cref="IAsyncActionFilter" />
-    /// <inheritdoc cref="IOrderedFilter" />
-    public sealed class ActionFilterProxy<TActionFilter>
-        : FilterProxy<TActionFilter>,
-          IAsyncActionFilter
-        where TActionFilter : class, IAsyncActionFilter
+    /// <summary>
+    ///     This filter proxy is specifically written for the <see cref="TransactionFilter" /> and is meant to be only
+    ///     used for this exact filter.  It implements both the <see cref="IAsyncActionFilter" /> and the
+    ///     <see cref="IAsyncAlwaysRunResultFilter" /> interface.  The former is used to initiate a transaction and
+    ///     the latter is used to close the transaction (commit or rollback).
+    /// </summary>
+    public class TransactionFilterProxy
+        : FilterProxy<TransactionFilter>,
+          IAsyncActionFilter,
+          IAsyncAlwaysRunResultFilter
     {
         /// <inheritdoc />
-        public ActionFilterProxy([NotNull] IWindsorContainer container, int order)
+        public TransactionFilterProxy([NotNull] IWindsorContainer container, int order)
             : base(container, order)
         {
         }
@@ -35,5 +39,9 @@ namespace PPWCode.Host.Core.WebApi
         /// <inheritdoc />
         public Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             => CreateFilterInstance(Arguments).OnActionExecutionAsync(context, next);
+
+        /// <inheritdoc />
+        public Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
+            => CreateFilterInstance(Arguments).OnResultExecutionAsync(context, next);
     }
 }

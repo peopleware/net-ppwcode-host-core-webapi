@@ -1,4 +1,4 @@
-// Copyright 2020 by PeopleWare n.v..
+// Copyright 2021 by PeopleWare n.v..
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -19,21 +19,19 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace PPWCode.Host.Core.WebApi
 {
-    /// <inheritdoc cref="IAsyncActionFilter" />
-    /// <inheritdoc cref="IOrderedFilter" />
-    public sealed class ActionFilterProxy<TActionFilter>
-        : FilterProxy<TActionFilter>,
-          IAsyncActionFilter
-        where TActionFilter : class, IAsyncActionFilter
+    public sealed class AlwaysRunResultFilterProxy<TAlwaysRunResultFilter>
+    : FilterProxy<TAlwaysRunResultFilter>,
+      IAsyncAlwaysRunResultFilter
+    where TAlwaysRunResultFilter : class, IAsyncAlwaysRunResultFilter
     {
         /// <inheritdoc />
-        public ActionFilterProxy([NotNull] IWindsorContainer container, int order)
+        public AlwaysRunResultFilterProxy([NotNull] IWindsorContainer container, int order)
             : base(container, order)
         {
         }
 
         /// <inheritdoc />
-        public Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-            => CreateFilterInstance(Arguments).OnActionExecutionAsync(context, next);
+        public Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
+            => CreateFilterInstance(Arguments).OnResultExecutionAsync(context, next);
     }
 }
