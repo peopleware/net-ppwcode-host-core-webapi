@@ -157,7 +157,7 @@ namespace PPWCode.Host.Core.WebApi
                                 finally
                                 {
                                     Logger.Info(() => $"{ActionContextDisplayName(context)} Rollback our request transaction.");
-                                    await nhTransaction.RollbackAsync();
+                                    await nhTransaction.RollbackAsync(CancellationToken.None);
                                 }
                             }
                             catch (Exception e)
@@ -179,7 +179,7 @@ namespace PPWCode.Host.Core.WebApi
                             }
                             catch (OperationCanceledException)
                             {
-                                await nhTransaction.RollbackAsync();
+                                await nhTransaction.RollbackAsync(CancellationToken.None);
                                 throw;
                             }
                             catch (Exception e)
@@ -193,7 +193,7 @@ namespace PPWCode.Host.Core.WebApi
                                     }
                                     finally
                                     {
-                                        await nhTransaction.RollbackAsync();
+                                        await nhTransaction.RollbackAsync(CancellationToken.None);
                                     }
                                 }
                                 catch (Exception e2)
