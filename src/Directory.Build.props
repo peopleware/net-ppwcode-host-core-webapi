@@ -48,6 +48,7 @@
       <![CDATA[
 1.0.0 Initial release
 1.0.1 Bugfix in check for http status code of response.
+1.1.0 Add transaction support through TransactionalAttribute
       ]]>
     </PackageReleaseNotes>
 
@@ -89,6 +90,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" PrivateAssets="All" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.2.0" PrivateAssets="All" />
   </ItemGroup>
 </Project>

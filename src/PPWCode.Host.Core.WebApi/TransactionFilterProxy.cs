@@ -25,10 +25,13 @@ namespace PPWCode.Host.Core.WebApi
     ///     <see cref="IAsyncAlwaysRunResultFilter" /> interface.  The former is used to initiate a transaction and
     ///     the latter is used to close the transaction (commit or rollback).
     /// </summary>
-    public class TransactionFilterProxy
-        : FilterProxy<TransactionFilter>,
+    public class TransactionFilterProxy<T>
+        : FilterProxy<T>,
           IAsyncActionFilter,
           IAsyncAlwaysRunResultFilter
+        where T : TransactionFilter,
+        IAsyncActionFilter,
+        IAsyncAlwaysRunResultFilter
     {
         /// <inheritdoc />
         public TransactionFilterProxy([NotNull] IWindsorContainer container, int order)

@@ -1,4 +1,4 @@
-// Copyright 2020 by PeopleWare n.v..
+// Copyright 2021 by PeopleWare n.v..
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -10,7 +10,8 @@
 // limitations under the License.
 
 using System;
-using System.Data;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -22,10 +23,12 @@ using JetBrains.Annotations;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 using NHibernate;
 
+using PPWCode.Server.Core.Transactional;
 using PPWCode.Vernacular.Exceptions.IV;
 
 using ISession = NHibernate.ISession;
@@ -39,7 +42,7 @@ namespace PPWCode.Host.Core.WebApi
     ///     is not successful, this will result in a rollback.
     /// </summary>
     /// <remarks>
-    ///     This filter should be registered in the ASP.NET Core pipeline using <see cref="TransactionFilterProxy" />.
+    ///     This filter should be registered in the ASP.NET Core pipeline using <see cref="TransactionFilterProxy{T}" />.
     /// </remarks>
     public class TransactionFilter
         : Filter,
@@ -49,6 +52,11 @@ namespace PPWCode.Host.Core.WebApi
         public const string RequestSimulation = "X-REQUEST-SIMULATION";
         public const string PpwRequestTransaction = "PPW_nhibernate_transaction";
         public const string PpwRequestSimulation = "PPW_request_simulation";
+
+        protected static readonly ConcurrentDictionary<string, TransactionalAttribute> TransactionalCache =
+            new ConcurrentDictionary<string, TransactionalAttribute>();
+
+        private bool _logWarning = true;
 
         /// <inheritdoc />
         public TransactionFilter([NotNull] IWindsorContainer container)
@@ -94,42 +102,55 @@ namespace PPWCode.Host.Core.WebApi
             await CloseTransaction(context, cancellationToken);
         }
 
-        protected Task InitiateTransaction([NotNull] ActionExecutingContext context, CancellationToken cancellationToken)
+        protected virtual Task InitiateTransaction([NotNull] ActionExecutingContext context, CancellationToken cancellationToken)
         {
             if (context.HttpContext.Items.ContainsKey(PpwRequestTransaction))
             {
                 throw new ProgrammingError($"{ActionContextDisplayName(context)} Something went wrong, we have already started a transaction on the current session.");
             }
 
-            ISession session = Container.Resolve<ISession>();
-            try
+            TransactionalAttribute TransactionalFactory(string key)
+                => OnTransactionalAttribute(key, context);
+
+            Logger.Info(() => $"Determine if we should use transactions using attribute {nameof(TransactionalAttribute)}");
+            string actionId = context.ActionDescriptor.Id;
+            TransactionalAttribute transactional = TransactionalCache.GetOrAdd(actionId, TransactionalFactory);
+            if ((transactional != null) && transactional.Transactional)
             {
-                if (!session.IsOpen)
+                ISession session = Container.Resolve<ISession>();
+                try
                 {
-                    throw new ProgrammingError($"{ActionContextDisplayName(context)} Current session is not opened.");
+                    if (!session.IsOpen)
+                    {
+                        throw new ProgrammingError($"{ActionContextDisplayName(context)} Current session is not opened.");
+                    }
+
+                    Logger.Info(() => $"{ActionContextDisplayName(context)} Start our request transaction, with isolation level {transactional.IsolationLevel}.");
+                    context.HttpContext.Items[PpwRequestTransaction] = session.BeginTransaction(transactional.IsolationLevel);
+
+                    if (context.HttpContext.Request.Headers.ContainsKey(RequestSimulation))
+                    {
+                        context.HttpContext.Items[PpwRequestSimulation] = "REQUEST-SIMULATION HEADER";
+                    }
                 }
-
-                Logger.Info(() => $"{ActionContextDisplayName(context)} Start our request transaction.");
-                context.HttpContext.Items[PpwRequestTransaction] = session.BeginTransaction(IsolationLevel.Unspecified);
+                finally
+                {
+                    Container.Release(session);
+                }
             }
-            finally
+            else
             {
-                Container.Release(session);
-            }
-
-            if (context.HttpContext.Request.Headers.ContainsKey(RequestSimulation))
-            {
-                context.HttpContext.Items[PpwRequestSimulation] = "REQUEST-SIMULATION HEADER";
+                Logger.Info(() => $"{ActionContextDisplayName(context)} No transaction is requested.");
             }
 
             return Task.CompletedTask;
         }
 
-        protected async Task CloseTransaction([NotNull] ResultExecutingContext context, CancellationToken cancellationToken)
+        protected virtual async Task CloseTransaction([NotNull] ResultExecutingContext context, CancellationToken cancellationToken)
         {
-            Logger.Info(() => $"{ActionContextDisplayName(context)} Check if there is a request transaction.");
             if (context.HttpContext.Items.TryGetValue(PpwRequestTransaction, out object transaction))
             {
+                Logger.Info(() => $"{ActionContextDisplayName(context)} A transaction request is made.");
                 ISession session = Container.Resolve<ISession>();
                 try
                 {
@@ -157,7 +178,7 @@ namespace PPWCode.Host.Core.WebApi
                                 finally
                                 {
                                     Logger.Info(() => $"{ActionContextDisplayName(context)} Rollback our request transaction.");
-                                    await nhTransaction.RollbackAsync();
+                                    await nhTransaction.RollbackAsync(CancellationToken.None);
                                 }
                             }
                             catch (Exception e)
@@ -179,7 +200,7 @@ namespace PPWCode.Host.Core.WebApi
                             }
                             catch (OperationCanceledException)
                             {
-                                await nhTransaction.RollbackAsync();
+                                await nhTransaction.RollbackAsync(CancellationToken.None);
                                 throw;
                             }
                             catch (Exception e)
@@ -193,7 +214,7 @@ namespace PPWCode.Host.Core.WebApi
                                     }
                                     finally
                                     {
-                                        await nhTransaction.RollbackAsync();
+                                        await nhTransaction.RollbackAsync(CancellationToken.None);
                                     }
                                 }
                                 catch (Exception e2)
@@ -215,6 +236,10 @@ namespace PPWCode.Host.Core.WebApi
                     context.HttpContext.Items.Remove(PpwRequestTransaction);
                     context.HttpContext.Items.Remove(PpwRequestSimulation);
                 }
+            }
+            else
+            {
+                Logger.Info(() => $"{ActionContextDisplayName(context)} A none transaction request is made.");
             }
         }
 
@@ -243,5 +268,40 @@ namespace PPWCode.Host.Core.WebApi
 
         protected virtual Task OnRollbackAsync(HttpContext context)
             => Task.CompletedTask;
+
+        [CanBeNull]
+        protected virtual TransactionalAttribute OnTransactionalAttribute(
+            [NotNull] string actionId,
+            [NotNull] ActionExecutingContext context)
+        {
+            TransactionalAttribute attribute = null;
+
+            if (context.ActionDescriptor is ControllerActionDescriptor controllerActionDescriptor)
+            {
+                attribute =
+                    controllerActionDescriptor
+                        .MethodInfo
+                        .GetCustomAttributes(typeof(TransactionalAttribute), true)
+                        .OfType<TransactionalAttribute>()
+                        .SingleOrDefault()
+                    ?? controllerActionDescriptor
+                        .ControllerTypeInfo
+                        .GetCustomAttributes(typeof(TransactionalAttribute), true)
+                        .OfType<TransactionalAttribute>()
+                        .SingleOrDefault();
+            }
+            else
+            {
+                if (_logWarning)
+                {
+                    Logger.Warn(
+                        $"{nameof(TransactionFilter)} is not able to detect the {nameof(TransactionalAttribute)} usage on class / method for action: {actionId}." +
+                        $"the context of type {nameof(ActionExecutingContext.ActionDescriptor)} was not implemented by {nameof(ControllerActionDescriptor)}.");
+                    _logWarning = false;
+                }
+            }
+
+            return attribute;
+        }
     }
 }
