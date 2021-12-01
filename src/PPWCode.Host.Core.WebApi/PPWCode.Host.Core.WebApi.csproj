@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- target frameworks -->
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
 
     <!-- Root Namespace -->
     <RootNamespace>PPWCode.Host.Core.WebApi</RootNamespace>
