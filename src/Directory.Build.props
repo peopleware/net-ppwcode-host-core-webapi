@@ -11,14 +11,20 @@
     <Version>$(PackageVersion)</Version>
     <FileVersion>$(InformationalVersion)</FileVersion>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+  </PropertyGroup>
 
-    <!-- build paths -->
-    <OutputPath>..\..\scratch\bin\$(MSBuildProjectName)-$(Configuration)-$(Platform)\</OutputPath>
-    <IntermediateOutputPath>..\..\scratch\obj\$(MSBuildProjectName)-$(Configuration)-$(Platform)\</IntermediateOutputPath>
-    <BaseIntermediateOutputPath>..\..\scratch\bob\$(MSBuildProjectName)-$(Configuration)-$(Platform)\</BaseIntermediateOutputPath>
-    <DocumentationFile>..\..\scratch\bin\$(MSBuildProjectName)-$(Configuration)-$(Platform)\$(MSBuildProjectName).xml</DocumentationFile>
+  <!-- set default for configuration -->
+  <PropertyGroup Condition=" '$(Configuration)' == '' ">
+    <Configuration>Debug</Configuration>
+  </PropertyGroup>
 
-    <!-- compiler configuration -->
+  <!-- set default for platform -->
+  <PropertyGroup Condition=" '$(Platform)' == '' ">
+    <Platform>AnyCPU</Platform>
+  </PropertyGroup>
+
+  <!-- compiler configuration -->
+  <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>4</WarningLevel>
     <NoWarn>1591;1592;1573;1571;1570;1572;1701;1702;1705;</NoWarn>
@@ -27,14 +33,43 @@
     <WarningsAsErrors />
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
 
-    <!-- nuget package -->
+  <!-- properties for debug configuration -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;CONTRACTS_PRE;CONTRACTS_POST;CONTRACTS_INVARIANT;CONTRACTS_ASSERT;JETBRAINS_ANNOTATIONS</DefineConstants>
+  </PropertyGroup>
+
+  <!-- properties for release configuration -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE;CONTRACTS_PRE;CONTRACTS_POST;CONTRACTS_INVARIANT;CONTRACTS_ASSERT;JETBRAINS_ANNOTATIONS</DefineConstants>
+  </PropertyGroup>
+
+  <!-- build paths -->
+  <PropertyGroup>
+    <OutputPath>..\..\scratch\bin\$(MSBuildProjectName)-$(Configuration)-$(Platform)\</OutputPath>
+    <IntermediateOutputPath>..\..\scratch\obj\$(MSBuildProjectName)-$(Configuration)-$(Platform)\</IntermediateOutputPath>
+    <BaseIntermediateOutputPath>..\..\scratch\bob\$(MSBuildProjectName)-$(Configuration)-$(Platform)\</BaseIntermediateOutputPath>
+    <DocumentationFile>..\..\scratch\bin\$(MSBuildProjectName)-$(Configuration)-$(Platform)\$(MSBuildProjectName).xml</DocumentationFile>
+  </PropertyGroup>
+
+  <!-- nuget package -->
+  <PropertyGroup>
     <Description>The PPWCode Host.Core.WebApi library</Description>
     <Product>PPWCode</Product>
     <Authors>dvdwouwe;rvdginste</Authors>
     <Company>Peopleware NV</Company>
-    <Copyright>Copyright © Peopleware NV 2014-2020</Copyright>
+    <Copyright>Copyright © Peopleware NV 2014-2021</Copyright>
 
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/peopleware/net-ppwcode-host-core-webapi.git</RepositoryUrl>
@@ -49,6 +84,7 @@
 1.0.0 Initial release
 1.0.1 Bugfix in check for http status code of response.
 1.1.0 Add transaction support through TransactionalAttribute
+1.2.0 Target .net core 3.1 & .net 6.0
       ]]>
     </PackageReleaseNotes>
 
@@ -73,23 +109,7 @@
     <None Include="../../README.md" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE;CONTRACTS_PRE;CONTRACTS_POST;CONTRACTS_INVARIANT;CONTRACTS_ASSERT</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <DefineConstants>TRACE;CONTRACTS_PRE;CONTRACTS_POST;CONTRACTS_INVARIANT;CONTRACTS_ASSERT</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2021.2.0" PrivateAssets="All" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" PrivateAssets="All" />
   </ItemGroup>
 </Project>
