@@ -69,7 +69,7 @@
     <Product>PPWCode</Product>
     <Authors>dvdwouwe;rvdginste</Authors>
     <Company>Peopleware NV</Company>
-    <Copyright>Copyright © Peopleware NV 2014-2021</Copyright>
+    <Copyright>Copyright © Peopleware NV 2014-2022</Copyright>
 
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/peopleware/net-ppwcode-host-core-webapi.git</RepositoryUrl>
