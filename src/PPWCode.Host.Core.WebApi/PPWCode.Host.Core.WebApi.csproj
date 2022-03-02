@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- target frameworks -->
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
 
     <!-- Root Namespace -->
     <RootNamespace>PPWCode.Host.Core.WebApi</RootNamespace>
@@ -20,19 +20,19 @@
 
   <ItemGroup>
     <!-- PPWCode -->
-    <PackageReference Include="PPWCode.API.Core" Version="1.0.0" />
-    <PackageReference Include="PPWCode.Server.Core" Version="1.1.0" />
+    <PackageReference Include="PPWCode.API.Core" Version="[1.1.0, 2)" />
+    <PackageReference Include="PPWCode.Server.Core" Version="[1.2.0-rc010064, 2)" />
 
     <!-- Castle Windsor -->
     <PackageReference Include="Castle.Windsor" Version="5.1.1" />
 
     <!-- NHibernate -->
-    <PackageReference Include="NHibernate" Version="5.3.10" />
+    <PackageReference Include="NHibernate" Version="5.3.11" />
 
     <!-- Others -->
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
 
     <!-- SourceLink -->
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 </Project>
