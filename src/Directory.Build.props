@@ -85,6 +85,7 @@
 1.0.1 Bugfix in check for http status code of response.
 1.1.0 Add transaction support through TransactionalAttribute
 1.2.0 Target .net core 3.1, .net 5.0, .net 6.0
+1.2.1 Upgrade to stable version PPWCode.Server.Core
       ]]>
     </PackageReleaseNotes>
 
