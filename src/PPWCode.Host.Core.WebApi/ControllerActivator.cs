@@ -9,10 +9,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-
 using Castle.MicroKernel;
-using Castle.MicroKernel.Lifestyle;
+using Castle.MicroKernel.Lifestyle.Scoped;
 using Castle.Windsor;
 
 using JetBrains.Annotations;
@@ -20,9 +18,12 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
+using PPWCode.Vernacular.Exceptions.IV;
+
 namespace PPWCode.Host.Core.WebApi
 {
     /// <inheritdoc />
+    [UsedImplicitly]
     public class ControllerActivator : IControllerActivator
     {
         public ControllerActivator([NotNull] IWindsorContainer container)
@@ -34,16 +35,21 @@ namespace PPWCode.Host.Core.WebApi
         public IKernel Kernel { get; }
 
         /// <inheritdoc />
-        public object Create(ControllerContext context)
+        [NotNull]
+        public object Create([NotNull] ControllerContext context)
         {
-            IDisposable scope = Kernel.BeginScope();
-            context.HttpContext.Response.RegisterForDispose(scope);
+            CallContextLifetimeScope currentScope = CallContextLifetimeScope.ObtainCurrentScope();
+            if (currentScope == null)
+            {
+                throw new ProgrammingError("No scope found, probably the scoping middleware was not activated in your pipeline.");
+            }
+
             Arguments arguments = new Arguments().AddNamed("controllerContext", context);
             return Kernel.Resolve(context.ActionDescriptor.ControllerTypeInfo.AsType(), arguments);
         }
 
         /// <inheritdoc />
-        public void Release(ControllerContext context, object controller)
+        public void Release([NotNull] ControllerContext context, [NotNull] object controller)
             => Kernel.ReleaseComponent(controller);
     }
 }
