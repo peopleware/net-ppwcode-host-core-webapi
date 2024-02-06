@@ -32,13 +32,14 @@ using ISession = NHibernate.ISession;
 namespace PPWCode.Host.Core.WebApi;
 
 /// <summary>
-///     This middleware handles transactions.  The middleware depends on the ScopeMiddleware which must be placed in
-///     front of this middleware in the pipeline.
+///     The <see cref="TransactionMiddleware" /> handles transactions.  The middleware depends on the
+///     <see cref="ScopeMiddleware" /> which must be placed in front of it in the pipeline: the
+///     <see cref="ScopeMiddleware" /> must be run before the <see cref="TransactionMiddleware" />.
 /// </summary>
 /// <remarks>
 ///     <p>
-///         The transaction is created, taking into account the TransactionalAttribute that might be placed on the
-///         controller or on the action method.
+///         The transaction is created, taking into account the <see cref="TransactionalAttribute" /> that might be placed
+///         on the controller or on the action method.
 ///     </p>
 ///     <p>
 ///         The transaction is created when the request passes through the middleware, and before the next middleware in
@@ -193,13 +194,13 @@ public class TransactionMiddleware : IMiddleware
             }
         }
     }
-    
+
     protected virtual bool IsSuccessStatusCode([NotNull] HttpContext httpContext)
     {
         int statusCode = httpContext.Response.StatusCode;
         return statusCode is >= (int)HttpStatusCode.OK and <= 299;
     }
-    
+
     [NotNull]
     protected virtual Task OnCommitAsync([NotNull] HttpContext context, CancellationToken cancellationToken)
         => Task.CompletedTask;
@@ -211,7 +212,7 @@ public class TransactionMiddleware : IMiddleware
     [NotNull]
     protected virtual Task OnRollbackAsync([NotNull] HttpContext context, CancellationToken cancellationToken)
         => Task.CompletedTask;
-    
+
     [NotNull]
     protected virtual Task OnAfterRollbackAsync([NotNull] HttpContext context, CancellationToken cancellationToken)
         => Task.CompletedTask;

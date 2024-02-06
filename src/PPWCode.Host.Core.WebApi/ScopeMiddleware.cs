@@ -23,17 +23,16 @@ using Microsoft.Extensions.DependencyInjection;
 namespace PPWCode.Host.Core.WebApi;
 
 /// <summary>
-///     This middleware initializes both a MS.DI and a Castle Windsor scope. The scope is created and becomes active when
-///     the request
-///     passes through the middleware, and the scopes are disposed when the response
+///     The <see cref="ScopeMiddleware" /> initializes both a MS.DI and a Castle Windsor scope. The scope is created and
+///     becomes active when the request passes through the middleware, and the scopes are disposed when the response
 ///     returns back through the middleware.
 /// </summary>
 /// <remarks>
 ///     <p>
-///         The middleware must be put in the pipeline before the  TransactionMiddleware.
+///         The middleware must be put in the pipeline before the  <see cref="TransactionMiddleware" />.
 ///     </p>
 ///     <p>
-///         This middleware must be used together with the custom ControllerActivator.
+///         This middleware must be used together with the custom <see cref="ControllerActivator" />.
 ///     </p>
 /// </remarks>
 [UsedImplicitly]

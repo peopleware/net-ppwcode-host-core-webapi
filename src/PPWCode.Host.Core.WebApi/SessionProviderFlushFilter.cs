@@ -27,6 +27,20 @@ using PPWCode.Vernacular.NHibernate.III.Async.Interfaces.Providers;
 
 namespace PPWCode.Host.Core.WebApi;
 
+/// <summary>
+///     The <see cref="SessionProviderFlushFilter" /> is an <see cref="IAsyncActionFilter" /> that executes a <c>Flush</c>
+///     on the NHibernate <see cref="NHibernate.ISession" /> right after the action method is executed.
+/// </summary>
+/// <remarks>
+///     <p>
+///         Note that this action filter is best placed as the first action filter: no database actions should be performed
+///         after the execution (in the 'after' part) of this action filter.
+///     </p>
+///     <p>
+///         Note that the <c>Flush</c> is only executed if the request is not cancelled and if the response has a success
+///         status code.
+///     </p>
+/// </remarks>
 [UsedImplicitly]
 public class SessionProviderFlushFilter : IAsyncActionFilter
 {
