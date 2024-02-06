@@ -9,7 +9,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,7 +16,6 @@ using Castle.Core.Logging;
 
 using JetBrains.Annotations;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 using NHibernate;
@@ -37,8 +35,7 @@ namespace PPWCode.Host.Core.WebApi;
 ///         after the execution (in the 'after' part) of this action filter.
 ///     </p>
 ///     <p>
-///         Note that the <c>Flush</c> is only executed if the request is not cancelled and if the response has a success
-///         status code.
+///         Note that the <c>Flush</c> is only executed if the request is not cancelled and did not generate an exception.
 ///     </p>
 /// </remarks>
 [UsedImplicitly]
@@ -83,11 +80,9 @@ public class SessionProviderFlushFilter : IAsyncActionFilter
 
         // We will only flush our pending action if and only if:
         // * No cancellation was requested
-        // * we have still a success code
         // * no exception was thrown by the endpoint
         CancellationToken cancellationToken = executedContext.HttpContext.RequestAborted;
         if (!cancellationToken.IsCancellationRequested
-            && IsSuccessStatusCode(executedContext.HttpContext)
             && (executedContext.Exception == null))
         {
             ITransaction currentTransaction = SessionProviderAsync.Session.GetCurrentTransaction();
@@ -102,10 +97,4 @@ public class SessionProviderFlushFilter : IAsyncActionFilter
     [NotNull]
     protected virtual string ActionContextDisplayName([NotNull] FilterContext context)
         => context.ActionDescriptor.DisplayName;
-
-    protected virtual bool IsSuccessStatusCode([NotNull] HttpContext httpContext)
-    {
-        int statusCode = httpContext.Response.StatusCode;
-        return statusCode is >= (int)HttpStatusCode.OK and <= 299;
-    }
 }
