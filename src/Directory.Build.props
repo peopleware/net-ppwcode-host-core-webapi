@@ -40,7 +40,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DefineConstants>DEBUG;TRACE;CONTRACTS_PRE;CONTRACTS_POST;CONTRACTS_INVARIANT;CONTRACTS_ASSERT;JETBRAINS_ANNOTATIONS</DefineConstants>
@@ -50,7 +50,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <DefineConstants>TRACE;CONTRACTS_PRE;CONTRACTS_POST;CONTRACTS_INVARIANT;CONTRACTS_ASSERT;JETBRAINS_ANNOTATIONS</DefineConstants>
   </PropertyGroup>
@@ -87,6 +87,11 @@
 1.2.0 Target .net core 3.1, .net 5.0, .net 6.0
 1.2.1 Upgrade to stable version PPWCode.Server.Core
 1.3.0 Upgrading dependencies
+2.0.0 Fix faults introduced when using Asp.Net Core in special cases
+ * fix: sometimes a Db transaction was committed after sending the request to the client
+ * fix: sometimes a Db constraints wasn't translated properly to the correct payload
+ * improvement: filters can now be used as intended, using AddService<>
+ * improvement: a IoC scope is now created using a specific middleware
       ]]>
     </PackageReleaseNotes>
 
@@ -112,6 +117,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" PrivateAssets="All" />
+    <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" PrivateAssets="All" />
   </ItemGroup>
 </Project>

@@ -33,6 +33,6 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
 
     <!-- SourceLink -->
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
 </Project>
