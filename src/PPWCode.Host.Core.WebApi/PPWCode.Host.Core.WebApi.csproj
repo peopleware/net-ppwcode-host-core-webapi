@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- target frameworks -->
-    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
 
     <!-- Root Namespace -->
     <RootNamespace>PPWCode.Host.Core.WebApi</RootNamespace>
@@ -20,19 +20,28 @@
 
   <ItemGroup>
     <!-- PPWCode -->
-    <PackageReference Include="PPWCode.API.Core" Version="[1.2.0, 2)" />
-    <PackageReference Include="PPWCode.Server.Core" Version="[1.3.0, 2)" />
+    <PackageReference Include="PPWCode.API.Core" Version="1.*" />
+    <PackageReference Include="PPWCode.Server.Core" Version="1.*" />
 
     <!-- Castle Windsor -->
     <PackageReference Include="Castle.Windsor" Version="5.1.1" />
 
     <!-- NHibernate -->
-    <PackageReference Include="NHibernate" Version="5.3.11" />
-
-    <!-- Others -->
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
-
-    <!-- SourceLink -->
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="NHibernate" Version="5.*" />
   </ItemGroup>
+
+  <!-- Others -->
+  <Choose>
+    <When Condition=" '$(TargetFramework)' == 'net6.0' ">
+      <ItemGroup>
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.*" />
+      </ItemGroup>
+    </When>
+    <When Condition=" '$(TargetFramework)' == 'net8.0' ">
+      <ItemGroup>
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.*" />
+      </ItemGroup>
+    </When>
+  </Choose>
+
 </Project>

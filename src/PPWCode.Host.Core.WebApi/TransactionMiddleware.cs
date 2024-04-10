@@ -175,7 +175,7 @@ public class TransactionMiddleware : IMiddleware
                     .SafeEnvironmentProviderAsync
                     .RunAsync(
                         nameof(ITransaction.RollbackAsync),
-                        can => transaction.RollbackAsync(can),
+                        transaction.RollbackAsync,
                         cancellationToken)
                     .ConfigureAwait(false);
                 await OnAfterRollbackAsync(httpContext, cancellationToken).ConfigureAwait(false);
@@ -187,7 +187,7 @@ public class TransactionMiddleware : IMiddleware
                     .SafeEnvironmentProviderAsync
                     .RunAsync(
                         nameof(ITransaction.CommitAsync),
-                        can => transaction.CommitAsync(can),
+                        transaction.CommitAsync,
                         cancellationToken)
                     .ConfigureAwait(false);
                 await OnAfterCommitAsync(httpContext, cancellationToken).ConfigureAwait(false);
