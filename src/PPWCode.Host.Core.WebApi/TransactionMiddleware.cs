@@ -51,24 +51,19 @@ namespace PPWCode.Host.Core.WebApi;
 ///     </p>
 /// </remarks>
 [UsedImplicitly]
-public class TransactionMiddleware : IMiddleware
+public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvider)
+    : IMiddleware
 {
     public const string RequestSimulation = "X-REQUEST-SIMULATION";
 
     [NotNull]
     private ILogger _logger = NullLogger.Instance;
 
-    public TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvider)
-    {
-        SessionProvider = sessionProvider;
-        Session = sessionProvider.Session;
-    }
+    [NotNull]
+    public ISession Session { get; } = sessionProvider.Session;
 
     [NotNull]
-    public ISession Session { get; }
-
-    [NotNull]
-    public ISessionProviderAsync SessionProvider { get; }
+    public ISessionProviderAsync SessionProvider { get; } = sessionProvider;
 
     [UsedImplicitly]
     [NotNull]
@@ -86,8 +81,7 @@ public class TransactionMiddleware : IMiddleware
     }
 
     /// <inheritdoc />
-    [NotNull]
-    public async Task InvokeAsync([NotNull] HttpContext httpContext, [NotNull] RequestDelegate next)
+    public async Task InvokeAsync(HttpContext httpContext, RequestDelegate next)
     {
         Endpoint endPoint = httpContext.GetEndpoint();
         if (endPoint == null)

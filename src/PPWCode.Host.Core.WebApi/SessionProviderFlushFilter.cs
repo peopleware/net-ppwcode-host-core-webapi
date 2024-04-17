@@ -39,18 +39,14 @@ namespace PPWCode.Host.Core.WebApi;
 ///     </p>
 /// </remarks>
 [UsedImplicitly]
-public class SessionProviderFlushFilter : IAsyncActionFilter
+public class SessionProviderFlushFilter([NotNull] ISessionProviderAsync sessionProviderAsync)
+    : IAsyncActionFilter
 {
     [NotNull]
     private ILogger _logger = NullLogger.Instance;
 
-    public SessionProviderFlushFilter([NotNull] ISessionProviderAsync sessionProviderAsync)
-    {
-        SessionProviderAsync = sessionProviderAsync;
-    }
-
     [NotNull]
-    public ISessionProviderAsync SessionProviderAsync { get; }
+    public ISessionProviderAsync SessionProviderAsync { get; } = sessionProviderAsync;
 
     [UsedImplicitly]
     [NotNull]
@@ -68,8 +64,7 @@ public class SessionProviderFlushFilter : IAsyncActionFilter
     }
 
     /// <inheritdoc />
-    [NotNull]
-    public async Task OnActionExecutionAsync([NotNull] ActionExecutingContext context, [NotNull] ActionExecutionDelegate next)
+    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         if (!SessionProviderAsync.Session.IsOpen)
         {
@@ -96,5 +91,5 @@ public class SessionProviderFlushFilter : IAsyncActionFilter
 
     [NotNull]
     protected virtual string ActionContextDisplayName([NotNull] FilterContext context)
-        => context.ActionDescriptor.DisplayName;
+        => context.ActionDescriptor.DisplayName ?? "Unknown action display name";
 }

@@ -39,8 +39,7 @@ namespace PPWCode.Host.Core.WebApi;
 public class ScopeMiddleware : IMiddleware
 {
     /// <inheritdoc />
-    [NotNull]
-    public async Task InvokeAsync([NotNull] HttpContext context, [NotNull] RequestDelegate next)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         // retrieve MS DI & CW containers
         IServiceProvider serviceProvider = context.RequestServices;
