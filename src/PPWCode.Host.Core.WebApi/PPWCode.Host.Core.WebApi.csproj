@@ -21,7 +21,7 @@
   <ItemGroup>
     <!-- PPWCode -->
     <PackageReference Include="PPWCode.API.Core" Version="1.*" />
-    <PackageReference Include="PPWCode.Server.Core" Version="2.0.0-rc010080" />
+    <PackageReference Include="PPWCode.Server.Core" Version="2.*" />
 
     <!-- Castle Windsor -->
     <PackageReference Include="Castle.Windsor" Version="5.1.1" />
