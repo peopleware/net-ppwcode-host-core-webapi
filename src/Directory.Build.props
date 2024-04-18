@@ -93,7 +93,9 @@
  * improvement: filters can now be used as intended, using AddService<>
  * improvement: a IoC scope is now created using a specific middleware
 2.1.0 Upgrading dependencies, Target .net 6.0, .net 8.0
-      Remove support for .net core 3.1, .net 5.0 
+      Remove support for .net core 3.1, .net 5.0
+3.0.0 Breaking change (switch versioning package, see https://github.com/dotnet/aspnet-api-versioning/wiki/Migration)
+      Upgrade PPWCode packages 
       ]]>
     </PackageReleaseNotes>
 
