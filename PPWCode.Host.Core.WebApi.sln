@@ -20,12 +20,13 @@ ProjectSection(SolutionItems) = preProject
 	src\common-tests.props = src\common-tests.props
 	src\common.props = src\common.props
 	src\Directory.Packages.props = src\Directory.Packages.props
+	global.json = global.json
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "analyzers", "analyzers", "{DDA30F7B-9DB5-4BBE-9A21-074870E5CF6C}"
 ProjectSection(SolutionItems) = preProject
-    src\Analyzer-Tests.ruleset = src\Analyzer-Tests.ruleset
-    src\Analyzer.ruleset = src\Analyzer.ruleset
+				src\Analyzer-Tests.ruleset = src\Analyzer-Tests.ruleset
+				src\Analyzer.ruleset = src\Analyzer.ruleset
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build-pipeline", "build-pipeline", "{CA3949DE-30B3-4263-9D76-0827E86657E5}"
