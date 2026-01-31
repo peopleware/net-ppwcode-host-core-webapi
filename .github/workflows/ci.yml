@@ -1,0 +1,50 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [ "next", "feature/*", "bugfix/*" ]
+  pull_request:
+    branches: [ "next" ]
+
+jobs:
+  build-and-test:
+    name: Build - ${{ matrix.name-suffix }}
+    runs-on: ${{ matrix.os }}
+    permissions:
+      checks: write
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-2022]
+        include:
+          - os: ubuntu-latest
+            name-suffix: 'Linux'
+          - os: macos-latest
+            name-suffix: 'macOS'
+          - os: windows-2022
+            name-suffix: 'Windows'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Restore dependencies
+        shell: bash
+        run: |
+          dotnet restore PPWCode.Host.Core.WebApi.sln \
+            --locked-mode \
+            -p:Configuration=Release
+
+      - name: Build
+        shell: bash
+        run: |
+          dotnet build PPWCode.Host.Core.WebApi.sln \
+            --configuration Release \
+            --no-restore \
+            -p:ContinuousIntegrationBuild=true

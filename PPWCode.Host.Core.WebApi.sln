@@ -28,6 +28,12 @@ ProjectSection(SolutionItems) = preProject
     src\Analyzer.ruleset = src\Analyzer.ruleset
 EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build-pipeline", "build-pipeline", "{CA3949DE-30B3-4263-9D76-0827E86657E5}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+		.github\workflows\publish.yml = .github\workflows\publish.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
