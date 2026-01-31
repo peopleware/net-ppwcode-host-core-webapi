@@ -1,0 +1,16 @@
+<Project>
+    <PropertyGroup>
+        <!-- nuget package -->
+        <IsPackable>true</IsPackable>
+
+        <!-- Analyzer -->
+        <CodeAnalysisRuleSet>..\Analyzer.ruleset</CodeAnalysisRuleSet>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="JetBrains.Annotations" />
+        <PackageReference Include="PPWCode.Vernacular.Contracts.I"/>
+    </ItemGroup>
+
+    <!-- common dependencies included using GlobalPackageReference -->
+</Project>
