@@ -13,12 +13,6 @@ ProjectSection(SolutionItems) = preProject
 	assets\ppwcode_logo.jpg = assets\ppwcode_logo.jpg
 EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "psake", "psake", "{374122FA-F823-4862-BE6E-21533660E7BF}"
-ProjectSection(SolutionItems) = preProject
-	init-psake.ps1 = init-psake.ps1
-	psakefile.ps1 = psakefile.ps1
-EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution-items", "solution-items", "{CE66967C-E0F7-41C2-9098-17F330923BF8}"
 ProjectSection(SolutionItems) = preProject
 	src\Directory.Build.props = src\Directory.Build.props
