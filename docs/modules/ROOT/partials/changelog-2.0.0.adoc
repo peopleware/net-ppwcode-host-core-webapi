@@ -1,0 +1,20 @@
+////
+The changelog for a specific release.
+Note that it is best to update the changelog as new code is developed.
+
+All attributes used, must be included in this file to keep it self-contained.
+
+This file is translated into markdown and used for the release notes in the GitHub release!
+////
+
+=== Changes
+* database transaction middleware
+** improvement: filters can now be used as intended, using `AddService<>`
+* scope middleware
+** improvement: IoC scope is now created through middleware
+
+
+=== Fixes
+* Fix faults when using Asp.Net Core in special cases
+** bugfix: sometimes a database transaction was only committed _after_ sending the response to the client
+** bugfix: sometimes a database constraint name was not properly passed through the error handler

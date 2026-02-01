@@ -1,127 +1,125 @@
 <Project>
 
-  <!-- https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build -->
+    <!-- https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build -->
 
-  <!-- version number -->
-  <Import Project="version.props" />
+    <!-- version -->
+    <PropertyGroup>
+        <!-- Default version for local development builds -->
+        <!-- Production versions are set from git tags in CI/CD pipelines -->
+        <Version>0.0.0-devbuild</Version>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+        <InformationalVersion>0.0.0.0</InformationalVersion>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <!-- version numbers -->
-    <AssemblyVersion>$(GacVersion)</AssemblyVersion>
-    <Version>$(PackageVersion)</Version>
-    <FileVersion>$(InformationalVersion)</FileVersion>
-    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-  </PropertyGroup>
+    <!-- nuget package -->
+    <PropertyGroup>
+        <Description>The PPWCode Host.Core.WebApi library</Description>
+        <Product>PPWCode</Product>
+        <Authors>dvdwouwe;rvdginste</Authors>
+        <Company>Peopleware NV</Company>
+        <Copyright>Copyright © Peopleware NV 2020-2026</Copyright>
 
-  <!-- set default for configuration -->
-  <PropertyGroup Condition=" '$(Configuration)' == '' ">
-    <Configuration>Debug</Configuration>
-  </PropertyGroup>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/peopleware/net-ppwcode-host-core-webapi.git</RepositoryUrl>
+        <PackageTags>ppwcode host core webapi</PackageTags>
+        <PackageProjectUrl>https://github.com/peopleware/net-ppwcode-host-core-webapi</PackageProjectUrl>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>ppw-logo-2.png</PackageIcon>
 
-  <!-- set default for platform -->
-  <PropertyGroup Condition=" '$(Platform)' == '' ">
-    <Platform>AnyCPU</Platform>
-  </PropertyGroup>
+        <PackageReleaseNotes>
+Changelog can be found in the documentation at:
+https://peopleware.github.io/net-ppwcode-docs/ppwcode-host-core-webapi/changelog.html
+        </PackageReleaseNotes>
 
-  <!-- compiler configuration -->
-  <PropertyGroup>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <WarningLevel>4</WarningLevel>
-    <NoWarn>1591;1592;1573;1571;1570;1572;1701;1702;1705;</NoWarn>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningsAsErrors />
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
+        <!-- SourceLink support -->
+        <!-- embed source code not in git repository -->
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <!-- embed all source code in the pdb, so not dependent from remote repo -->
+        <EmbedAllSources>true</EmbedAllSources>
+        <!-- publish the repository URL in the nuget package -->
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <!-- continuous integration build (false for local builds, set to true in CI/CD) -->
+        <ContinuousIntegrationBuild Condition="'$(ContinuousIntegrationBuild)' == ''">false</ContinuousIntegrationBuild>
+        <!-- include the pdb in the nuget package -->
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    </PropertyGroup>
 
-  <!-- properties for debug configuration -->
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DefineConstants>DEBUG;TRACE;CONTRACTS_PRE;CONTRACTS_POST;CONTRACTS_INVARIANT;CONTRACTS_ASSERT;JETBRAINS_ANNOTATIONS</DefineConstants>
-  </PropertyGroup>
+    <!-- include supporting files in NuGet package -->
+    <ItemGroup>
+        <None Include="../../assets/ppw-logo-2.png" Pack="true" PackagePath="/" Visible="false"/>
+        <None Include="../../LICENSE" Pack="true" PackagePath="/" Visible="false"/>
+        <None Include="../../NOTICE" Pack="true" PackagePath="/" Visible="false"/>
+        <None Include="../../README.md" Pack="true" PackagePath="/" Visible="false"/>
+    </ItemGroup>
 
-  <!-- properties for release configuration -->
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <DefineConstants>TRACE;CONTRACTS_PRE;CONTRACTS_POST;CONTRACTS_INVARIANT;CONTRACTS_ASSERT;JETBRAINS_ANNOTATIONS</DefineConstants>
-  </PropertyGroup>
+    <!-- build configuration -->
+    <PropertyGroup>
+        <!-- Target frameworks -->
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
 
-  <!-- build paths -->
-  <PropertyGroup>
-    <OutputPath>..\..\scratch\bin\$(MSBuildProjectName)-$(Configuration)-$(Platform)\</OutputPath>
-    <IntermediateOutputPath>..\..\scratch\obj\$(MSBuildProjectName)-$(Configuration)-$(Platform)\</IntermediateOutputPath>
-    <BaseIntermediateOutputPath>..\..\scratch\bob\$(MSBuildProjectName)-$(Configuration)-$(Platform)\</BaseIntermediateOutputPath>
-    <DocumentationFile>..\..\scratch\bin\$(MSBuildProjectName)-$(Configuration)-$(Platform)\$(MSBuildProjectName).xml</DocumentationFile>
-  </PropertyGroup>
+        <!-- Configurations -->
+        <Configurations>Debug;Release</Configurations>
+        <Platforms>AnyCPU</Platforms>
 
-  <!-- nuget package -->
-  <PropertyGroup>
-    <Description>The PPWCode Host.Core.WebApi library</Description>
-    <Product>PPWCode</Product>
-    <Authors>dvdwouwe;rvdginste</Authors>
-    <Company>Peopleware NV</Company>
-    <Copyright>Copyright © Peopleware NV 2014-2022</Copyright>
+        <!-- Generate documentation files -->
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/peopleware/net-ppwcode-host-core-webapi.git</RepositoryUrl>
-    <PackageTags>ppwcode host core webapi</PackageTags>
-    <PackageProjectUrl>https://github.com/peopleware/net-ppwcode-host-core-webapi</PackageProjectUrl>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageIcon>ppwcode_logo.jpg</PackageIcon>
+        <!-- content -->
+        <EnableDefaultContentItems>false</EnableDefaultContentItems>
 
-    <PackageReleaseNotes>
-      <![CDATA[
-1.0.0 Initial release
-1.0.1 Bugfix in check for http status code of response.
-1.1.0 Add transaction support through TransactionalAttribute
-1.2.0 Target .net core 3.1, .net 5.0, .net 6.0
-1.2.1 Upgrade to stable version PPWCode.Server.Core
-1.3.0 Upgrading dependencies
-2.0.0 Fix faults introduced when using Asp.Net Core in special cases
- * fix: sometimes a Db transaction was committed after sending the request to the client
- * fix: sometimes a Db constraints wasn't translated properly to the correct payload
- * improvement: filters can now be used as intended, using AddService<>
- * improvement: a IoC scope is now created using a specific middleware
-2.1.0 Upgrading dependencies, Target .net 6.0, .net 8.0
-      Remove support for .net core 3.1, .net 5.0
-3.0.0 Breaking change (switch versioning package, see https://github.com/dotnet/aspnet-api-versioning/wiki/Migration)
-      Upgrade PPWCode packages 
-      ]]>
-    </PackageReleaseNotes>
+        <!-- use package lock files -->
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <RestoreLockedMode>true</RestoreLockedMode>
 
-    <!-- SourceLink support -->
-    <!-- embed source code not in git repository -->
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <!-- embed all source code in the pdb, so not dependent from remote repo -->
-    <EmbedAllSources>true</EmbedAllSources>
-    <!-- publish the repository URL in the nuget package -->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <!-- continuous integration build -->
-    <ContinuousIntegrationBuild>$(TeamCityBuild)</ContinuousIntegrationBuild>
-    <!-- include the pdb in the nuget package -->
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-  </PropertyGroup>
+        <!-- to avoid automatically getting the reference assemblies -->
+        <!-- note: the reference assemblies are added explicitly -->
+        <!-- to avoid differences in the package lock files across OSes -->
+        <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
+    </PropertyGroup>
 
-  <!-- include supporting files in NuGet package -->
-  <ItemGroup>
-    <None Include="../../assets/ppwcode_logo.jpg" Pack="true" PackagePath="/" Visible="false" />
-    <None Include="../../LICENSE" Pack="true" PackagePath="/" Visible="false" />
-    <None Include="../../NOTICE" Pack="true" PackagePath="/" Visible="false" />
-    <None Include="../../README.md" Pack="true" PackagePath="/" Visible="false" />
-  </ItemGroup>
+    <!-- set default for configuration -->
+    <PropertyGroup Condition=" '$(Configuration)' == '' ">
+        <Configuration>Debug</Configuration>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-  </ItemGroup>
+    <!-- set default for platform -->
+    <PropertyGroup Condition=" '$(Platform)' == '' ">
+        <Platform>AnyCPU</Platform>
+    </PropertyGroup>
+
+    <!-- compiler configuration -->
+    <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <WarningLevel>4</WarningLevel>
+        <NoWarn>1591;1592;1573;1571;1570;1572;1701;1702;</NoWarn>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningsAsErrors/>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+        <LangVersion>12.0</LangVersion>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+
+    <!-- properties for debug configuration -->
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <DefineConstants>DEBUG;TRACE;CONTRACTS_PRE;CONTRACTS_POST;CONTRACTS_INVARIANT;CONTRACTS_ASSERT;JETBRAINS_ANNOTATIONS</DefineConstants>
+    </PropertyGroup>
+
+    <!-- properties for release configuration -->
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <DefineConstants>TRACE;CONTRACTS_PRE;CONTRACTS_POST;CONTRACTS_INVARIANT;CONTRACTS_ASSERT;JETBRAINS_ANNOTATIONS</DefineConstants>
+    </PropertyGroup>
+
 </Project>

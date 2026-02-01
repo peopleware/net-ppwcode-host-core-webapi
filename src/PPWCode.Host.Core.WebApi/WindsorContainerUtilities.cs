@@ -1,4 +1,4 @@
-// Copyright 2020 by PeopleWare n.v..
+// Copyright 2026 by PeopleWare n.v..
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -49,10 +49,9 @@ namespace PPWCode.Host.Core.WebApi
                 IEnumerable<string> candidateDirectories =
                     Directory
                         .EnumerateFiles(directoryName)
-                        .Where(x => 
+                        .Where(x =>
                                    Path.HasExtension(x)
-                                    && string.Equals(Path.GetExtension(x), ".dll",
-                                                     StringComparison.InvariantCultureIgnoreCase)
+                                    && string.Equals(Path.GetExtension(x), ".dll", StringComparison.InvariantCultureIgnoreCase)
                                     && Path.GetFileName(x).StartsWith(dllPrefix, StringComparison.OrdinalIgnoreCase));
                 foreach (string file in candidateDirectories)
                 {

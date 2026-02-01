@@ -1,0 +1,14 @@
+= Getting started
+
+== Add NuGet package
+
+This package is available on NuGet: https://www.nuget.org/packages/PPWCode.Host.Core.WebApi[PPWCode.Host.Core.WebApi].
+
+You can use your IDE to add it as a dependency to your project, or manually add it in the `.csproj` file. This would look similar to the following:
+
+[source,xml]
+----
+include::example$project.csproj[]
+----
+
+After the package is added, you can use the base classes and interfaces from `PPWCode.Host.Core.WebApi` in your code.

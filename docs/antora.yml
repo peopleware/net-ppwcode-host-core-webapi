@@ -1,0 +1,5 @@
+name: ppwcode-host-core-webapi
+title: PPWCode.Host.Core.WebApi
+version: ~
+nav:
+- modules/ROOT/nav.adoc

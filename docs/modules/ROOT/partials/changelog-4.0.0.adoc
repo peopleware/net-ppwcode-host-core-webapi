@@ -1,0 +1,24 @@
+////
+The changelog for a specific release.
+Note that it is best to update the changelog as new code is developed.
+
+All attributes used, must be included in this file to keep it self-contained.
+
+This file is translated into markdown and used for the release notes in the GitHub release!
+////
+
+:ppwcode-docs: https://peopleware.github.io/net-ppwcode-docs/ppwcode-host-core-webapi/
+
+=== Changes
+* Supported targets: `.NET 8.0`, `.NET 9.0`, `.NET 10.0`
+* Build and publish workflows on GitHub actions
+* Upgraded dependencies
+* Initial version of documentation, available on link:{ppwcode-docs}[PPWCode .NET Docs]
+* Reproducible builds
+** Locking the compiler version to ensure reproducible builds
+*** Compiler version is now tracked through `global.json`
+** Strict locking when restoring dependencies (`dotnet restore --locked-mode`)
+
+
+=== Breaking
+* Remove support for target `.NET 6.0`
