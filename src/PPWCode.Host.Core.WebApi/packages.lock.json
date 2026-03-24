@@ -76,11 +76,8 @@
       "PPWCode.Vernacular.Contracts.I": {
         "type": "Direct",
         "requested": "[1.*, )",
-        "resolved": "1.4.1",
-        "contentHash": "4GlI02Sxovny8zLMbMo3VBVqZDkoVWLSWDSz0hNlpmuy34wRbxFcLWzjyMpx6ps2PXZ35jpPBOMh3+F5VQWyiA==",
-        "dependencies": {
-          "PPWCode.Vernacular.Exceptions.IV": "2.2.1"
-        }
+        "resolved": "1.5.0",
+        "contentHash": "Hv7hjZ+RXEnVkAZEdwlAW5QbT0Hvh+pCusaiQT5bRD93Z58OuMHH6Q48TizzufF6+DRm9rJdnufIcOWWvKLKaw=="
       },
       "PPWCode.Vernacular.Exceptions.IV": {
         "type": "Direct",
@@ -467,8 +464,8 @@
       "System.Drawing.Common": {
         "type": "CentralTransitive",
         "requested": "[8.*, )",
-        "resolved": "8.0.23",
-        "contentHash": "cVTifYc3H7peJC5YOSTvJjvkkkmZ90cVxbC76zNZclBDXz4YQKTMv/aD2TmKx+Cb+4LbXD8rsf/mydbGu5+Dzw==",
+        "resolved": "8.0.25",
+        "contentHash": "Am+9K9F1RaQf8+aayuglr/uIsADlUOS+3eOqGKsDsTBQbPjY0q+55HUYiktDonPMlDay3WPHuZHuAW2cQs8LPw==",
         "dependencies": {
           "Microsoft.Win32.SystemEvents": "8.0.0"
         }
@@ -549,11 +546,8 @@
       "PPWCode.Vernacular.Contracts.I": {
         "type": "Direct",
         "requested": "[1.*, )",
-        "resolved": "1.4.1",
-        "contentHash": "4GlI02Sxovny8zLMbMo3VBVqZDkoVWLSWDSz0hNlpmuy34wRbxFcLWzjyMpx6ps2PXZ35jpPBOMh3+F5VQWyiA==",
-        "dependencies": {
-          "PPWCode.Vernacular.Exceptions.IV": "2.2.1"
-        }
+        "resolved": "1.5.0",
+        "contentHash": "Hv7hjZ+RXEnVkAZEdwlAW5QbT0Hvh+pCusaiQT5bRD93Z58OuMHH6Q48TizzufF6+DRm9rJdnufIcOWWvKLKaw=="
       },
       "PPWCode.Vernacular.Exceptions.IV": {
         "type": "Direct",
@@ -946,8 +940,8 @@
       "System.Drawing.Common": {
         "type": "CentralTransitive",
         "requested": "[8.*, )",
-        "resolved": "8.0.23",
-        "contentHash": "cVTifYc3H7peJC5YOSTvJjvkkkmZ90cVxbC76zNZclBDXz4YQKTMv/aD2TmKx+Cb+4LbXD8rsf/mydbGu5+Dzw==",
+        "resolved": "8.0.25",
+        "contentHash": "Am+9K9F1RaQf8+aayuglr/uIsADlUOS+3eOqGKsDsTBQbPjY0q+55HUYiktDonPMlDay3WPHuZHuAW2cQs8LPw==",
         "dependencies": {
           "Microsoft.Win32.SystemEvents": "8.0.0"
         }
@@ -1028,11 +1022,8 @@
       "PPWCode.Vernacular.Contracts.I": {
         "type": "Direct",
         "requested": "[1.*, )",
-        "resolved": "1.4.1",
-        "contentHash": "4GlI02Sxovny8zLMbMo3VBVqZDkoVWLSWDSz0hNlpmuy34wRbxFcLWzjyMpx6ps2PXZ35jpPBOMh3+F5VQWyiA==",
-        "dependencies": {
-          "PPWCode.Vernacular.Exceptions.IV": "2.2.1"
-        }
+        "resolved": "1.5.0",
+        "contentHash": "Hv7hjZ+RXEnVkAZEdwlAW5QbT0Hvh+pCusaiQT5bRD93Z58OuMHH6Q48TizzufF6+DRm9rJdnufIcOWWvKLKaw=="
       },
       "PPWCode.Vernacular.Exceptions.IV": {
         "type": "Direct",
@@ -1425,8 +1416,8 @@
       "System.Drawing.Common": {
         "type": "CentralTransitive",
         "requested": "[8.*, )",
-        "resolved": "8.0.23",
-        "contentHash": "cVTifYc3H7peJC5YOSTvJjvkkkmZ90cVxbC76zNZclBDXz4YQKTMv/aD2TmKx+Cb+4LbXD8rsf/mydbGu5+Dzw==",
+        "resolved": "8.0.25",
+        "contentHash": "Am+9K9F1RaQf8+aayuglr/uIsADlUOS+3eOqGKsDsTBQbPjY0q+55HUYiktDonPMlDay3WPHuZHuAW2cQs8LPw==",
         "dependencies": {
           "Microsoft.Win32.SystemEvents": "8.0.0"
         }
