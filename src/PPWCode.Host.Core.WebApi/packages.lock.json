@@ -260,8 +260,8 @@
       },
       "Microsoft.Win32.SystemEvents": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "9opKRyOKMCi2xJ7Bj7kxtZ1r9vbzosMvRrdEhVhDz8j8MoBGgB+WmC94yH839NPH+BclAjtQ/pyagvi/8gDLkw=="
+        "resolved": "10.0.5",
+        "contentHash": "a7rC0Qb5JGiA4f4ooqQjsx17LgYkb9feOcMNGyBXGqYmqC4ZoLbrV98zn7Kr5Z39BIU10Bti80Jwm/QAw+45VA=="
       },
       "NETStandard.Library": {
         "type": "Transitive",
@@ -463,11 +463,11 @@
       },
       "System.Drawing.Common": {
         "type": "CentralTransitive",
-        "requested": "[8.*, )",
-        "resolved": "8.0.25",
-        "contentHash": "Am+9K9F1RaQf8+aayuglr/uIsADlUOS+3eOqGKsDsTBQbPjY0q+55HUYiktDonPMlDay3WPHuZHuAW2cQs8LPw==",
+        "requested": "[10.*, )",
+        "resolved": "10.0.5",
+        "contentHash": "FYgPPbii/9Prh7RuY1gaxSyik7Ysw594K0uCHggDxHDgl7mfk8c4UlwluKjQoMquVGLce7Jld4DjjsnuYK3m7g==",
         "dependencies": {
-          "Microsoft.Win32.SystemEvents": "8.0.0"
+          "Microsoft.Win32.SystemEvents": "10.0.5"
         }
       }
     },
@@ -1206,8 +1206,8 @@
       },
       "Microsoft.Win32.SystemEvents": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "9opKRyOKMCi2xJ7Bj7kxtZ1r9vbzosMvRrdEhVhDz8j8MoBGgB+WmC94yH839NPH+BclAjtQ/pyagvi/8gDLkw=="
+        "resolved": "9.0.14",
+        "contentHash": "o4DkqaN55rbDwojl0ktnAI/ZADDYucLqlFmhFx+n/IEZVU5Jskf74U2dp4ABJyiSH90VlorNncmvTzX1gBktOQ=="
       },
       "NETStandard.Library": {
         "type": "Transitive",
@@ -1415,11 +1415,11 @@
       },
       "System.Drawing.Common": {
         "type": "CentralTransitive",
-        "requested": "[8.*, )",
-        "resolved": "8.0.25",
-        "contentHash": "Am+9K9F1RaQf8+aayuglr/uIsADlUOS+3eOqGKsDsTBQbPjY0q+55HUYiktDonPMlDay3WPHuZHuAW2cQs8LPw==",
+        "requested": "[9.*, )",
+        "resolved": "9.0.14",
+        "contentHash": "ecVymtwnnc5Qaz1KruQJAhcYbklYF+5wfKLRcbYaX53fCdIZb8NmXbiJlft6L7GNyw6Xv1z1KAB8Dwi7WagsYg==",
         "dependencies": {
-          "Microsoft.Win32.SystemEvents": "8.0.0"
+          "Microsoft.Win32.SystemEvents": "9.0.14"
         }
       }
     }
