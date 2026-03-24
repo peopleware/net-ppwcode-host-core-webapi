@@ -1,0 +1,21 @@
+////
+The changelog for a specific release.
+Note that it is best to update the changelog as new code is developed.
+
+All attributes used, must be included in this file to keep it self-contained.
+
+This file is translated into markdown and used for the release notes in the GitHub release!
+////
+
+:ppwcode-docs: https://peopleware.github.io/net-ppwcode-docs/ppwcode-server-core/
+
+=== Fixes
+* DebugType is set to portable
+
+=== Changes
+* use latest sdk 10.0.201
+* remove upper limit for Castle.Windsor package [5.1.1, 5.1.2] -> [5.1.1, )
+* use latest dependent PPWCode packages
+** PPWCode.API.Core
+** PPWCode.Server.Core
+** PPWCode.Vernacular.NHibernate.III
