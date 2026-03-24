@@ -122,4 +122,9 @@ https://peopleware.github.io/net-ppwcode-docs/ppwcode-host-core-webapi/changelog
         <DefineConstants>TRACE;CONTRACTS_PRE;CONTRACTS_POST;CONTRACTS_INVARIANT;CONTRACTS_ASSERT;JETBRAINS_ANNOTATIONS</DefineConstants>
     </PropertyGroup>
 
+    <!-- Show transitive package dependencies (a little bit slower) -->
+    <PropertyGroup>
+        <EmitLegacyAssetsFileItems>True</EmitLegacyAssetsFileItems>
+    </PropertyGroup>
+
 </Project>
