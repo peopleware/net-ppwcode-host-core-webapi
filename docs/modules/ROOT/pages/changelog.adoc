@@ -13,7 +13,7 @@ the link to the GitHub tag is only added once we are ready to release.
 :ppwcode-docs: https://peopleware.github.io/net-ppwcode-docs/ppwcode-host-core-webapi/
 
 
-:release: 4.0.1
+:release: 5.0.0
 == `{release}`
 include::partial$changelog-release-section.adoc[]
 include::partial$changelog-{release}.adoc[]

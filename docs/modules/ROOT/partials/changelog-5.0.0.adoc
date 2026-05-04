@@ -13,9 +13,12 @@ This file is translated into markdown and used for the release notes in the GitH
 * DebugType is set to portable
 
 === Changes
-* use latest sdk 10.0.201
-* remove upper limit for Castle.Windsor package [5.1.1, 5.1.2] -> [5.1.1, )
+* use latest sdk 10.0.203
+
+=== Breaking
+* remove Castle.Core / Castle.Windsor packages
 * use latest dependent PPWCode packages
 ** PPWCode.API.Core
 ** PPWCode.Server.Core
 ** PPWCode.Vernacular.NHibernate.III
+* use Microsoft.Extension.Logger.ILogger
