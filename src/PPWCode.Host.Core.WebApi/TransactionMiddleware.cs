@@ -1,4 +1,4 @@
-// Copyright 2024 by PeopleWare n.v..
+// Copyright 2026 by PeopleWare n.v..
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,12 +14,11 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Castle.Core.Logging;
-
 using JetBrains.Annotations;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.Extensions.Logging;
 
 using NHibernate;
 
@@ -54,8 +53,8 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
 {
     public const string RequestSimulation = "X-REQUEST-SIMULATION";
 
-    [NotNull]
-    private ILogger _logger = NullLogger.Instance;
+    [CanBeNull]
+    private ILogger _logger;
 
     [NotNull]
     public ISession Session { get; } = sessionProvider.Session;
@@ -63,20 +62,9 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
     [NotNull]
     public ISessionProviderAsync SessionProvider { get; } = sessionProvider;
 
-    [UsedImplicitly]
     [NotNull]
     public ILogger Logger
-    {
-        get => _logger;
-        set
-        {
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-            if (value != null)
-            {
-                _logger = value;
-            }
-        }
-    }
+        => _logger ??= PPWLogging.GetLogger(GetType());
 
     /// <inheritdoc />
     public async Task InvokeAsync(HttpContext httpContext, RequestDelegate next)
@@ -126,7 +114,10 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
         [NotNull] ControllerActionDescriptor controllerActionDescriptor,
         [CanBeNull] TransactionalAttribute transactionalAttribute)
     {
-        Logger.Info(() => $"Determine if we should use transactions using attribute {nameof(TransactionalAttribute)}");
+        if (Logger.IsEnabled(LogLevel.Information))
+        {
+            Logger.LogInformation($"Determine if we should use transactions using attribute {nameof(TransactionalAttribute)}");
+        }
 
         string displayName = controllerActionDescriptor.DisplayName;
         IsolationLevel isolationLevel = transactionalAttribute?.IsolationLevel ?? IsolationLevel.Unspecified;
@@ -138,11 +129,19 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
                 throw new ProgrammingError($"{displayName} Current session is not opened.");
             }
 
-            Logger.Info(() => $"{displayName} Start our request transaction, with isolation level {isolationLevel}.");
+            if (Logger.IsEnabled(LogLevel.Information))
+            {
+                Logger.LogInformation($"{displayName} Start our request transaction, with isolation level {isolationLevel}.");
+            }
+
             return Session.BeginTransaction(transactionalAttribute.IsolationLevel);
         }
 
-        Logger.Info(() => $"{displayName} No transaction is requested.");
+        if (Logger.IsEnabled(LogLevel.Information))
+        {
+            Logger.LogInformation($"{displayName} No transaction is requested.");
+        }
+
         return null;
     }
 
