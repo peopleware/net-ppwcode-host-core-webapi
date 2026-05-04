@@ -32,9 +32,7 @@ using ISession = NHibernate.ISession;
 namespace PPWCode.Host.Core.WebApi;
 
 /// <summary>
-///     The <see cref="TransactionMiddleware" /> handles transactions.  The middleware depends on the
-///     <see cref="ScopeMiddleware" /> which must be placed in front of it in the pipeline: the
-///     <see cref="ScopeMiddleware" /> must be run before the <see cref="TransactionMiddleware" />.
+///     The <see cref="TransactionMiddleware" /> handles transactions.
 /// </summary>
 /// <remarks>
 ///     <p>
