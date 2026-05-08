@@ -14,3 +14,7 @@ This file is translated into markdown and used for the release notes in the GitH
 
 * remove support for and dependency on `Castle.Windsor`
 * replace Castle `ILogger` with Microsoft `ILogger`
+* remove `Castle.Windsor` specific classes
+** `ControllerActivator`
+** `ScopeMiddleware`
+** `WindsorContainerUtilities`
