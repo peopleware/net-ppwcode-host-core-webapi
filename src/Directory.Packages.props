@@ -26,23 +26,19 @@
         <PackageVersion Include="PPWCode.Vernacular.Exceptions.IV" Version="2.*" />
         <PackageVersion Include="PPWCode.Vernacular.Semantics.IV" Version="2.*" />
         <PackageVersion Include="PPWCode.Vernacular.Persistence.IV" Version="2.*" />
-        <PackageVersion Include="PPWCode.Vernacular.NHibernate.III" Version="4.*"/>
-        <PackageVersion Include="PPWCode.API.Core" Version="2.*"/>
-        <PackageVersion Include="PPWCode.Server.Core" Version="3.*"/>
+        <PackageVersion Include="PPWCode.Vernacular.NHibernate.III" Version="4.*-*"/>
+        <PackageVersion Include="PPWCode.API.Core" Version="2.*-*"/>
+        <PackageVersion Include="PPWCode.Server.Core" Version="3.*-*"/>
 
         <!-- newtonsoft -->
         <PackageVersion Include="Newtonsoft.Json" Version="13.*" />
 
         <!-- castle -->
         <PackageVersion Include="Castle.Core" Version="4.*"/>
-        <PackageVersion Include="Castle.Windsor" Version="[5.1.1, 5.1.2]"/>
+        <PackageVersion Include="Castle.Windsor" Version="5.1.1"/>
 
         <!-- nhibernate -->
         <PackageVersion Include="NHibernate" Version="5.*" />
-
-        <!-- microsoft -->
-        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.*" />
-        <PackageVersion Include="System.Drawing.Common" Version="8.*" />
 
         <!-- nunit -->
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
@@ -53,6 +49,20 @@
 
         <!-- analyzers -->
         <PackageVersion Include="NUnit.Analyzers" Version="4.11.2" />
+    </ItemGroup>
+
+    <!-- microsoft: framework dependent -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.*" />
+        <PackageVersion Include="System.Drawing.Common" Version="8.*" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.*" />
+        <PackageVersion Include="System.Drawing.Common" Version="9.*" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.*" />
+        <PackageVersion Include="System.Drawing.Common" Version="10.*" />
     </ItemGroup>
 
     <!-- global package references -->

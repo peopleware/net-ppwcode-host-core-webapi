@@ -1,0 +1,20 @@
+////
+The changelog for a specific release.
+Note that it is best to update the changelog as new code is developed.
+
+All attributes used, must be included in this file to keep it self-contained.
+
+This file is translated into markdown and used for the release notes in the GitHub release!
+////
+
+:ppwcode-docs: https://peopleware.github.io/net-ppwcode-docs/ppwcode-host-core-webapi/
+
+
+=== Changes
+
+* use dotnet sdk `10.0.203`
+* use portable pdbs
+* package dependencies
+** `Castle.Windsor`, remove upper version limit and use lower limit `5.1.1`
+** `Microsoft.Extensions.Hosting.Abstractions`, use version matching version dotnet SDK
+** `System.Drawing.Common`, use version matching version dotnet SDK
