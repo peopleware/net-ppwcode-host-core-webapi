@@ -12,11 +12,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using Castle.Core.Logging;
-
 using JetBrains.Annotations;
 
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Logging;
 
 using NHibernate;
 
@@ -42,26 +41,15 @@ namespace PPWCode.Host.Core.WebApi;
 public class SessionProviderFlushFilter([NotNull] ISessionProviderAsync sessionProviderAsync)
     : IAsyncActionFilter
 {
-    [NotNull]
-    private ILogger _logger = NullLogger.Instance;
+    [CanBeNull]
+    private ILogger _logger;
 
     [NotNull]
     public ISessionProviderAsync SessionProviderAsync { get; } = sessionProviderAsync;
 
-    [UsedImplicitly]
     [NotNull]
     public ILogger Logger
-    {
-        get => _logger;
-        set
-        {
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-            if (value != null)
-            {
-                _logger = value;
-            }
-        }
-    }
+        => _logger ??= PPWLogging.GetLogger(GetType());
 
     /// <inheritdoc />
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -83,7 +71,13 @@ public class SessionProviderFlushFilter([NotNull] ISessionProviderAsync sessionP
             ITransaction currentTransaction = SessionProviderAsync.Session.GetCurrentTransaction();
             if (currentTransaction?.IsActive == true)
             {
-                Logger.Info(() => $"{ActionContextDisplayName(context)} Flush our request to the database.");
+                if (Logger.IsEnabled(LogLevel.Information))
+                {
+                    Logger.LogInformation(
+                        "{ActionContext} Flush our request to the database",
+                        ActionContextDisplayName(context));
+                }
+
                 await SessionProviderAsync.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
         }
