@@ -21,9 +21,6 @@
     <PackageReference Include="PPWCode.API.Core" />
     <PackageReference Include="PPWCode.Server.Core" />
 
-    <!-- Castle Windsor -->
-    <PackageReference Include="Castle.Windsor" />
-
     <!-- NHibernate -->
     <PackageReference Include="NHibernate" />
 

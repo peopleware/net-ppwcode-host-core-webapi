@@ -33,10 +33,6 @@
         <!-- newtonsoft -->
         <PackageVersion Include="Newtonsoft.Json" Version="13.*" />
 
-        <!-- castle -->
-        <PackageVersion Include="Castle.Core" Version="4.*"/>
-        <PackageVersion Include="Castle.Windsor" Version="5.1.1"/>
-
         <!-- nhibernate -->
         <PackageVersion Include="NHibernate" Version="5.*" />
 
