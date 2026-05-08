@@ -51,13 +51,6 @@
         <PackageVersion Include="NUnit.Analyzers" Version="4.11.2" />
     </ItemGroup>
 
-    <!-- global package references -->
-    <ItemGroup>
-        <!-- included in each project, using PrivateAssets="All" -->
-        <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
-        <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
-    </ItemGroup>
-
     <!-- microsoft: framework dependent -->
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
         <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.*" />
@@ -70,6 +63,13 @@
     <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
         <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.*" />
         <PackageVersion Include="System.Drawing.Common" Version="10.*" />
+    </ItemGroup>
+
+    <!-- global package references -->
+    <ItemGroup>
+        <!-- included in each project, using PrivateAssets="All" -->
+        <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
+        <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     </ItemGroup>
 
 </Project>
