@@ -1,0 +1,16 @@
+////
+The changelog for a specific release.
+Note that it is best to update the changelog as new code is developed.
+
+All attributes used, must be included in this file to keep it self-contained.
+
+This file is translated into markdown and used for the release notes in the GitHub release!
+////
+
+:ppwcode-docs: https://peopleware.github.io/net-ppwcode-docs/ppwcode-host-core-webapi/
+
+
+=== Breaking
+
+* remove support for and dependency on `Castle.Windsor`
+* replace Castle `ILogger` with Microsoft `ILogger`
