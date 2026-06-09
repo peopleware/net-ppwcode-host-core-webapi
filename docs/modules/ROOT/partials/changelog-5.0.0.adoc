@@ -18,3 +18,6 @@ This file is translated into markdown and used for the release notes in the GitH
 ** `ControllerActivator`
 ** `ScopeMiddleware`
 ** `WindsorContainerUtilities`
+* remove support for hooks in `TransactionMiddleware`
+** code for `commit` and `rollback` is more robust
+** rarely used methods `OnCommitAsync`, `OnAfterCommitAsync`, `OnRollbackAsync` and `OnAfterRollbackAsync` are removed
