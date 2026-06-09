@@ -183,7 +183,7 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
             return;
         }
 
-        // mark the transaction as handled before handling it as this prevents recursive calls
+        // mark the transaction as handled before handling it as this prevents execution in recursive calls
         _isTransactionClosed = true;
 
         // only do something when the transaction is still active
@@ -198,52 +198,34 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
             if (shouldRollback)
             {
                 // A rollback shouldn't be canceled!
-                cancellationToken = CancellationToken.None;
-                await HandleRollbackAsync(httpContext, transaction, cancellationToken).ConfigureAwait(false);
+                await HandleRollbackAsync(transaction, CancellationToken.None).ConfigureAwait(false);
             }
             else
             {
                 // Decided to go through with a commit: do not cancel once started
-                cancellationToken = CancellationToken.None;
-                await HandleCommitAsync(httpContext, transaction, cancellationToken).ConfigureAwait(false);
+                await HandleCommitAsync(transaction, CancellationToken.None).ConfigureAwait(false);
             }
         }
     }
 
     /// <summary>
-    ///     This method does a best-effort attempt to roll back the given transaction.  Note that two hooks are provided:
-    ///     <see cref="OnRollbackAsync"/> and <see cref="OnAfterRollbackAsync"/>.  The former is always called before
-    ///     the rollback is executed, and the latter is always called after the rollback was executed, whether that
-    ///     execution was successful or not.
+    ///     This method does a best-effort attempt to roll back the given transaction.
     /// </summary>
     /// <remarks>
     ///     The method performs the rollback on a best-effort basis: when something goes wrong, the exception is properly
-    ///     logged, but the exception is silenced: the calling code will not see any exception originating from the
-    ///     actual rollback.  Exceptions thrown by any of the hooks <see cref="OnRollbackAsync"/> or
-    ///     <see cref="OnAfterRollbackAsync"/> are logged, but also silenced!
+    ///     logged, but the exception itself is swallowed.  Logically, the code determines that a rollback must be
+    ///     initiated, and the further flow and handling acts as if the rollback was successfully executed.  Whenever a
+    ///     rollback is initiated, there is a guarantee that the commit was not executed.
     /// </remarks>
-    /// <param name="httpContext">the given <see cref="HttpContext"/></param>
     /// <param name="transaction">the given <see cref="ITransaction"/></param>
     /// <param name="cancellationToken">the given <see cref="CancellationToken"/></param>
     /// <returns>
     ///     A <see cref="Task"/> representing the asynchronous action.
     /// </returns>
     protected async Task HandleRollbackAsync(
-        [NotNull] HttpContext httpContext,
         [NotNull] ITransaction transaction,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            // hook before rollback
-            await OnRollbackAsync(httpContext, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            // log, but swallow exception
-            Logger.LogError(e, "OnRollbackAsync hook failed with exception: exception is logged but swallowed");
-        }
-
         try
         {
             // execute rollback
@@ -260,40 +242,24 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
             // log, but swallow exception
             Logger.LogError(e, "Actual rollback failed with exception: exception is logged but swallowed");
         }
-
-        try
-        {
-            // hook after rollback
-            await OnAfterRollbackAsync(httpContext, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            // log, but swallow exception
-            Logger.LogError(e, "OnAfterRollbackAsync hook failed with exception: exception is logged but swallowed");
-        }
     }
 
     /// <summary>
-    ///     This method handles the commit of the given transaction.  Note that two hooks are provided:
-    ///     <see cref="OnCommitAsync"/> and <see cref="OnAfterCommitAsync"/>.  The former is always called before
-    ///     the commit is executed, and the latter is only called when the commit was successfully executed!  When the
-    ///     <see cref="OnCommitAsync"/> hook or the commit call itself fails, the transaction is rolled back on a
-    ///     best-effort basis and the <see cref="OnAfterCommitAsync"/> hook is not called.
+    ///     This method handles the commit of the given transaction.  Note that if the commit call fails, the
+    ///     transaction is rolled back on a best-effort basis.  The exception thrown by the commit failure is thrown
+    ///     further up the stack.
     /// </summary>
-    /// <param name="httpContext">the given <see cref="HttpContext"/></param>
     /// <param name="transaction">the given <see cref="ITransaction"/></param>
     /// <param name="cancellationToken">the given <see cref="CancellationToken"/></param>
     /// <returns>
     ///     A <see cref="Task"/> representing the asynchronous action.
     /// </returns>
     protected async Task HandleCommitAsync(
-        [NotNull] HttpContext httpContext,
         [NotNull] ITransaction transaction,
         CancellationToken cancellationToken)
     {
         try
         {
-            await OnCommitAsync(httpContext, cancellationToken).ConfigureAwait(false);
             await SessionProvider
                 .SafeEnvironmentProviderAsync
                 .RunAsync(
@@ -308,21 +274,10 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
             Logger.LogError(e, "HandleCommit failed with exception");
 
             // next, do a best-effort rollback
-            await HandleRollbackAsync(httpContext, transaction, CancellationToken.None).ConfigureAwait(false);
+            await HandleRollbackAsync(transaction, CancellationToken.None).ConfigureAwait(false);
 
             // throw the original exception for correct exception handling
             throw;
-        }
-
-        try
-        {
-            // hook after commit
-            await OnAfterCommitAsync(httpContext, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            // log, but swallow exception
-            Logger.LogError(e, "OnAfterCommitAsync hook failed with exception: exception is logged but swallowed");
         }
     }
 
@@ -331,20 +286,4 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
         int statusCode = httpContext.Response.StatusCode;
         return statusCode is >= (int)HttpStatusCode.OK and <= 299;
     }
-
-    [NotNull]
-    protected virtual Task OnCommitAsync([NotNull] HttpContext context, CancellationToken cancellationToken)
-        => Task.CompletedTask;
-
-    [NotNull]
-    protected virtual Task OnAfterCommitAsync([NotNull] HttpContext context, CancellationToken cancellationToken)
-        => Task.CompletedTask;
-
-    [NotNull]
-    protected virtual Task OnRollbackAsync([NotNull] HttpContext context, CancellationToken cancellationToken)
-        => Task.CompletedTask;
-
-    [NotNull]
-    protected virtual Task OnAfterRollbackAsync([NotNull] HttpContext context, CancellationToken cancellationToken)
-        => Task.CompletedTask;
 }
