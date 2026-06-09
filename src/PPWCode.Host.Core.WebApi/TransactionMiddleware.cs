@@ -9,6 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Data;
 using System.Net;
 using System.Threading;
@@ -52,6 +53,8 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
     : IMiddleware
 {
     public const string RequestSimulation = "X-REQUEST-SIMULATION";
+
+    private bool _isTransactionClosed = false;
 
     [CanBeNull]
     private ILogger _logger;
@@ -137,7 +140,13 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
                     isolationLevel);
             }
 
-            return Session.BeginTransaction(transactionalAttribute.IsolationLevel);
+            ITransaction transaction = Session.BeginTransaction(transactionalAttribute.IsolationLevel);
+            if (Logger.IsEnabled(LogLevel.Information))
+            {
+                Logger.LogInformation("Created transaction {TransactionHashCode}", transaction.GetHashCode());
+            }
+
+            return transaction;
         }
 
         if (Logger.IsEnabled(LogLevel.Information))
@@ -150,13 +159,37 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
         return null;
     }
 
+    /// <summary>
+    ///     This closes the active <see cref="ITransaction"/>, if there is one, and if there was no earlier attempt
+    ///     to close the transaction.
+    /// </summary>
+    /// <param name="httpContext">the given <see cref="HttpContext"/></param>
+    /// <param name="transaction">the given <see cref="ITransaction"/></param>
+    /// <returns>
+    ///     A <see cref="Task"/> representing the asynchronous action.
+    /// </returns>
     [NotNull]
     protected virtual async Task CloseTransactionAsync(
         [NotNull] HttpContext httpContext,
         [NotNull] ITransaction transaction)
     {
+        if (_isTransactionClosed)
+        {
+            if (Logger.IsEnabled(LogLevel.Information))
+            {
+                Logger.LogInformation("Transaction {TransactionHashCode} is already closed; no further action performed", transaction.GetHashCode());
+            }
+
+            return;
+        }
+
+        // mark the transaction as handled before handling it as this prevents recursive calls
+        _isTransactionClosed = true;
+
+        // only do something when the transaction is still active
         if (transaction.IsActive)
         {
+            // decide whether a rollback is needed
             CancellationToken cancellationToken = httpContext.RequestAborted;
             bool shouldRollback =
                 !IsSuccessStatusCode(httpContext)
@@ -166,28 +199,130 @@ public class TransactionMiddleware([NotNull] ISessionProviderAsync sessionProvid
             {
                 // A rollback shouldn't be canceled!
                 cancellationToken = CancellationToken.None;
-                await OnRollbackAsync(httpContext, cancellationToken).ConfigureAwait(false);
-                await SessionProvider
-                    .SafeEnvironmentProviderAsync
-                    .RunAsync(
-                        nameof(ITransaction.RollbackAsync),
-                        transaction.RollbackAsync,
-                        cancellationToken)
-                    .ConfigureAwait(false);
-                await OnAfterRollbackAsync(httpContext, cancellationToken).ConfigureAwait(false);
+                await HandleRollbackAsync(httpContext, transaction, cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                await OnCommitAsync(httpContext, cancellationToken).ConfigureAwait(false);
-                await SessionProvider
-                    .SafeEnvironmentProviderAsync
-                    .RunAsync(
-                        nameof(ITransaction.CommitAsync),
-                        transaction.CommitAsync,
-                        cancellationToken)
-                    .ConfigureAwait(false);
-                await OnAfterCommitAsync(httpContext, cancellationToken).ConfigureAwait(false);
+                // Decided to go through with a commit: do not cancel once started
+                cancellationToken = CancellationToken.None;
+                await HandleCommitAsync(httpContext, transaction, cancellationToken).ConfigureAwait(false);
             }
+        }
+    }
+
+    /// <summary>
+    ///     This method does a best-effort attempt to roll back the given transaction.  Note that two hooks are provided:
+    ///     <see cref="OnRollbackAsync"/> and <see cref="OnAfterRollbackAsync"/>.  The former is always called before
+    ///     the rollback is executed, and the latter is always called after the rollback was executed, whether that
+    ///     execution was successful or not.
+    /// </summary>
+    /// <remarks>
+    ///     The method performs the rollback on a best-effort basis: when something goes wrong, the exception is properly
+    ///     logged, but the exception is silenced: the calling code will not see any exception originating from the
+    ///     actual rollback.  Exceptions thrown by any of the hooks <see cref="OnRollbackAsync"/> or
+    ///     <see cref="OnAfterRollbackAsync"/> are logged, but also silenced!
+    /// </remarks>
+    /// <param name="httpContext">the given <see cref="HttpContext"/></param>
+    /// <param name="transaction">the given <see cref="ITransaction"/></param>
+    /// <param name="cancellationToken">the given <see cref="CancellationToken"/></param>
+    /// <returns>
+    ///     A <see cref="Task"/> representing the asynchronous action.
+    /// </returns>
+    protected async Task HandleRollbackAsync(
+        [NotNull] HttpContext httpContext,
+        [NotNull] ITransaction transaction,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            // hook before rollback
+            await OnRollbackAsync(httpContext, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            // log, but swallow exception
+            Logger.LogError(e, "OnRollbackAsync hook failed with exception: exception is logged but swallowed");
+        }
+
+        try
+        {
+            // execute rollback
+            await SessionProvider
+                .SafeEnvironmentProviderAsync
+                .RunAsync(
+                    nameof(ITransaction.RollbackAsync),
+                    transaction.RollbackAsync,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            // log, but swallow exception
+            Logger.LogError(e, "Actual rollback failed with exception: exception is logged but swallowed");
+        }
+
+        try
+        {
+            // hook after rollback
+            await OnAfterRollbackAsync(httpContext, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            // log, but swallow exception
+            Logger.LogError(e, "OnAfterRollbackAsync hook failed with exception: exception is logged but swallowed");
+        }
+    }
+
+    /// <summary>
+    ///     This method handles the commit of the given transaction.  Note that two hooks are provided:
+    ///     <see cref="OnCommitAsync"/> and <see cref="OnAfterCommitAsync"/>.  The former is always called before
+    ///     the commit is executed, and the latter is only called when the commit was successfully executed!  When the
+    ///     <see cref="OnCommitAsync"/> hook or the commit call itself fails, the transaction is rolled back on a
+    ///     best-effort basis and the <see cref="OnAfterCommitAsync"/> hook is not called.
+    /// </summary>
+    /// <param name="httpContext">the given <see cref="HttpContext"/></param>
+    /// <param name="transaction">the given <see cref="ITransaction"/></param>
+    /// <param name="cancellationToken">the given <see cref="CancellationToken"/></param>
+    /// <returns>
+    ///     A <see cref="Task"/> representing the asynchronous action.
+    /// </returns>
+    protected async Task HandleCommitAsync(
+        [NotNull] HttpContext httpContext,
+        [NotNull] ITransaction transaction,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await OnCommitAsync(httpContext, cancellationToken).ConfigureAwait(false);
+            await SessionProvider
+                .SafeEnvironmentProviderAsync
+                .RunAsync(
+                    nameof(ITransaction.CommitAsync),
+                    transaction.CommitAsync,
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            // log exception first
+            Logger.LogError(e, "HandleCommit failed with exception");
+
+            // next, do a best-effort rollback
+            await HandleRollbackAsync(httpContext, transaction, CancellationToken.None).ConfigureAwait(false);
+
+            // throw the original exception for correct exception handling
+            throw;
+        }
+
+        try
+        {
+            // hook after commit
+            await OnAfterCommitAsync(httpContext, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            // log, but swallow exception
+            Logger.LogError(e, "OnAfterCommitAsync hook failed with exception: exception is logged but swallowed");
         }
     }
 
