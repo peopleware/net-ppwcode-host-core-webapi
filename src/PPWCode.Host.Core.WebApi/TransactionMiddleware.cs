@@ -32,7 +32,8 @@ using ISession = NHibernate.ISession;
 namespace PPWCode.Host.Core.WebApi;
 
 /// <summary>
-///     The <see cref="TransactionMiddleware" /> handles transactions.
+///     The <see cref="TransactionMiddleware" /> handles transactions.  Note that this middleware must be registered in
+///     the DI container using a lifestyle <c>Scoped</c>!
 /// </summary>
 /// <remarks>
 ///     <p>
