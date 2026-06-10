@@ -12,9 +12,19 @@ This file is translated into markdown and used for the release notes in the GitH
 
 === Changes
 
-* use dotnet sdk `10.0.203`
+* use dotnet sdk `10.0.301`
 * use portable pdbs
 * package dependencies
 ** `Castle.Windsor`, remove upper version limit and use lower limit `5.1.1`
 ** `Microsoft.Extensions.Hosting.Abstractions`, use version matching version dotnet SDK
 ** `System.Drawing.Common`, use version matching version dotnet SDK
+** upgrade dependencies
+
+
+=== Breaking
+
+This breaking change was necessary to make the transaction handling more robust.  When this change impacts your project, you can take the source code from the original `TransactionMiddleware` and use that code directly in your project.  The breaking change was introduced in a _minor_ version bump, because version 4 is legacy: it is recommended to upgrade to version 5.
+
+* remove support for hooks in `TransactionMiddleware`
+** code for `commit` and `rollback` is more robust
+** rarely used methods `OnCommitAsync`, `OnAfterCommitAsync`, `OnRollbackAsync` and `OnAfterRollbackAsync` are removed
