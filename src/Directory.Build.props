@@ -22,7 +22,7 @@
 
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/peopleware/net-ppwcode-host-core-webapi.git</RepositoryUrl>
-        <PackageTags>ppwcode host core webapi</PackageTags>
+        <PackageTags>ppwcode host core webapi gen4</PackageTags>
         <PackageProjectUrl>https://github.com/peopleware/net-ppwcode-host-core-webapi</PackageProjectUrl>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
