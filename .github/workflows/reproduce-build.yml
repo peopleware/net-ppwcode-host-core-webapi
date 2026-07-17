@@ -94,14 +94,14 @@ jobs:
       - name: Restore dependencies
         shell: bash
         run: |
-          dotnet restore PPWCode.Host.Core.WebApi.sln \
+          dotnet restore PPWCode.Host.Core.WebApi.slnx \
             --locked-mode \
             -p:Configuration=Release
 
       - name: Build
         shell: bash
         run: |
-          dotnet build PPWCode.Host.Core.WebApi.sln \
+          dotnet build PPWCode.Host.Core.WebApi.slnx \
             --configuration Release \
             --no-restore \
             -p:ContinuousIntegrationBuild=true \
@@ -112,7 +112,7 @@ jobs:
       - name: Pack
         shell: bash
         run: |
-          dotnet pack PPWCode.Host.Core.WebApi.sln \
+          dotnet pack PPWCode.Host.Core.WebApi.slnx \
             --configuration Release \
             --no-build \
             --output ./artifacts \
