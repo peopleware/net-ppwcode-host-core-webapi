@@ -26,7 +26,7 @@
         <PackageVersion Include="PPWCode.Vernacular.Exceptions.IV" Version="2.*" />
         <PackageVersion Include="PPWCode.Vernacular.Semantics.IV" Version="2.*" />
         <PackageVersion Include="PPWCode.Vernacular.Persistence.IV" Version="2.*" />
-        <PackageVersion Include="PPWCode.Vernacular.NHibernate.III" Version="4.*"/>
+        <PackageVersion Include="PPWCode.Vernacular.NHibernate.III" Version="5.*"/>
         <PackageVersion Include="PPWCode.API.Core" Version="3.*"/>
         <PackageVersion Include="PPWCode.Server.Core" Version="4.*"/>
 
